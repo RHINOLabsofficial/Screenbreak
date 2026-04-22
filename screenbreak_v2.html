@@ -1,0 +1,2499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCREENBREAK — Reclaim Your Mind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════════ */
+:root {
+  --ink:       #08080a;
+  --ink60:     rgba(8,8,10,0.6);
+  --paper:     #f4efe6;
+  --warm:      #e6ddd0;
+  --surface:   #111014;
+  --ember:     #c94e1a;
+  --ember-dim: rgba(201,78,26,0.15);
+  --gold:      #c89428;
+  --gold-dim:  rgba(200,148,40,0.12);
+  --mist:      rgba(244,239,230,0.08);
+  --border:    rgba(244,239,230,0.1);
+  --sidebar-w: 320px;
+}
+
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--surface);
+  color: var(--paper);
+  overflow-x: hidden;
+  cursor: default;
+}
+::selection { background: var(--ember); color: #fff; }
+
+/* ═══════════════════════════════════════════════
+   HERO — FULL VIEWPORT SKY
+═══════════════════════════════════════════════ */
+#hero {
+  position: relative;
+  height: 400vh; /* long scroll */
+}
+#hero-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#skyCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Hero text layers */
+.hero-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.hero-layer.hidden { opacity: 0; pointer-events: none; }
+
+.hero-mono {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: rgba(244,239,230,0.5);
+  margin-bottom: 1.2rem;
+}
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(5rem, 14vw, 11rem);
+  font-weight: 300;
+  line-height: 0.88;
+  color: #fff;
+  letter-spacing: -0.01em;
+  text-shadow: 0 4px 60px rgba(0,0,0,0.4);
+  margin-bottom: 1.5rem;
+}
+.hero-title em {
+  font-style: italic;
+  font-weight: 300;
+  color: rgba(255,255,255,0.75);
+}
+.hero-sub {
+  font-size: 1.05rem;
+  font-weight: 300;
+  line-height: 1.75;
+  color: rgba(244,239,230,0.7);
+  max-width: 520px;
+  margin: 0 auto;
+}
+.scroll-cue {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+.scroll-cue span {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(244,239,230,0.35);
+}
+.scroll-line {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, rgba(244,239,230,0.4), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+@keyframes scrollPulse {
+  0%,100% { opacity: 0.3; transform: scaleY(1); }
+  50% { opacity: 1; transform: scaleY(1.2); }
+}
+
+/* ═══════════════════════════════════════════════
+   LANDING PAGE (below hero)
+═══════════════════════════════════════════════ */
+#landing {
+  background: var(--surface);
+  position: relative;
+  z-index: 10;
+}
+
+/* NAV */
+#mainNav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.4rem 3rem;
+  transition: background 0.4s, border-bottom 0.4s;
+}
+#mainNav.scrolled {
+  background: rgba(8,8,10,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--paper);
+}
+.nav-right { display: flex; align-items: center; gap: 2rem; }
+.nav-link {
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  color: rgba(244,239,230,0.5);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.nav-link:hover { color: var(--paper); }
+.nav-cta {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: var(--ember);
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.6rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.nav-cta:hover { background: #a83d14; transform: translateY(-1px); }
+
+/* SECTIONS */
+.land-section {
+  padding: 9rem 3rem;
+  max-width: 1260px;
+  margin: 0 auto;
+}
+.s-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--ember);
+  margin-bottom: 1.2rem;
+}
+.s-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 400;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  color: var(--paper);
+}
+.s-title em { font-style: italic; color: rgba(244,239,230,0.6); }
+.s-body {
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.85;
+  color: rgba(244,239,230,0.6);
+  max-width: 580px;
+}
+
+/* Feature manifesto */
+.manifesto-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  margin-top: 5rem;
+  border: 1px solid var(--border);
+}
+.manifesto-cell {
+  background: var(--surface);
+  padding: 2.5rem;
+  transition: background 0.25s;
+}
+.manifesto-cell:hover { background: rgba(244,239,230,0.03); }
+.manifesto-icon {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--ember);
+  margin-bottom: 1rem;
+}
+.manifesto-cell h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--paper);
+}
+.manifesto-cell p {
+  font-size: 0.88rem;
+  font-weight: 300;
+  line-height: 1.75;
+  color: rgba(244,239,230,0.55);
+}
+
+/* Modules showcase */
+.modules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 4rem;
+  border-top: 1px solid var(--border);
+}
+.module-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 3rem;
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.2s;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  margin: 0 -1.5rem;
+}
+.module-row:hover { background: rgba(244,239,230,0.02); }
+.module-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--ember);
+  min-width: 2rem;
+  padding-top: 0.3rem;
+}
+.module-info { flex: 1; }
+.module-info h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--paper);
+  margin-bottom: 0.5rem;
+}
+.module-info p {
+  font-size: 0.88rem;
+  font-weight: 300;
+  line-height: 1.7;
+  color: rgba(244,239,230,0.5);
+  max-width: 500px;
+}
+.module-arrow {
+  font-size: 1.2rem;
+  color: rgba(244,239,230,0.2);
+  padding-top: 0.5rem;
+  transition: color 0.2s, transform 0.2s;
+}
+.module-row:hover .module-arrow { color: var(--ember); transform: translateX(4px); }
+
+/* Start CTA section */
+.cta-section {
+  padding: 10rem 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(201,78,26,0.08) 0%, transparent 70%);
+}
+.cta-section .s-title { margin: 0 auto 1rem; max-width: 600px; }
+.cta-section .s-body { margin: 0 auto 3rem; }
+.btn-primary {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  background: var(--ember);
+  color: #fff;
+  border: none;
+  padding: 1.1rem 3rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  display: inline-block;
+}
+.btn-primary:hover {
+  background: #a83d14;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(201,78,26,0.3);
+}
+.btn-secondary {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: transparent;
+  color: rgba(244,239,230,0.6);
+  border: 1px solid var(--border);
+  padding: 0.9rem 2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: rgba(244,239,230,0.4); color: var(--paper); }
+
+/* ═══════════════════════════════════════════════
+   APP SHELL (sidebar + content)
+═══════════════════════════════════════════════ */
+#appShell {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: none;
+  background: var(--surface);
+}
+#appShell.active { display: flex; }
+
+/* Sidebar */
+#sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: rgba(8,8,10,0.98);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+}
+.sidebar-header {
+  padding: 1.75rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sidebar-logo {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--paper);
+}
+.sidebar-close {
+  background: none; border: none; cursor: pointer;
+  color: rgba(244,239,230,0.4); font-size: 1.1rem; line-height: 1;
+  transition: color 0.2s;
+}
+.sidebar-close:hover { color: var(--paper); }
+
+.sidebar-profile {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.profile-avatar {
+  width: 44px; height: 44px;
+  background: var(--ember-dim);
+  border: 1px solid var(--ember);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  color: var(--ember);
+  margin-bottom: 0.75rem;
+}
+.profile-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--paper);
+  margin-bottom: 0.2rem;
+}
+.profile-level {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+}
+.profile-xp-bar {
+  margin-top: 0.75rem;
+  height: 2px;
+  background: rgba(244,239,230,0.08);
+}
+.profile-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ember), var(--gold));
+  transition: width 0.5s ease;
+}
+
+.sidebar-nav { padding: 1rem 0; flex: 1; }
+.nav-section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(244,239,230,0.25);
+  padding: 0.75rem 1.5rem 0.4rem;
+}
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-left: 2px solid transparent;
+}
+.sidebar-item:hover { background: var(--mist); }
+.sidebar-item.active {
+  background: var(--ember-dim);
+  border-left-color: var(--ember);
+}
+.sidebar-item.active .si-label { color: var(--paper); }
+.si-icon {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem;
+  color: rgba(244,239,230,0.4);
+  flex-shrink: 0;
+}
+.sidebar-item.active .si-icon { color: var(--ember); }
+.si-label {
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: rgba(244,239,230,0.55);
+}
+.si-badge {
+  margin-left: auto;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  background: var(--ember);
+  color: #fff;
+  padding: 0.1rem 0.4rem;
+  letter-spacing: 0.1em;
+}
+
+/* Main content area */
+#appContent {
+  flex: 1;
+  overflow-y: auto;
+  height: 100%;
+  position: relative;
+}
+.module-panel {
+  display: none;
+  padding: 3rem;
+  min-height: 100%;
+  animation: fadeIn 0.3s ease;
+}
+.module-panel.active { display: block; }
+@keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+
+/* Module headers */
+.mod-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+.mod-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--ember);
+  margin-bottom: 0.6rem;
+}
+.mod-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 400;
+  color: var(--paper);
+  line-height: 1.1;
+}
+.mod-desc {
+  margin-top: 0.75rem;
+  font-size: 0.88rem;
+  font-weight: 300;
+  line-height: 1.75;
+  color: rgba(244,239,230,0.5);
+  max-width: 560px;
+}
+
+/* Cards */
+.card {
+  background: rgba(244,239,230,0.03);
+  border: 1px solid var(--border);
+  padding: 1.75rem;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: rgba(244,239,230,0.18); }
+.card-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(244,239,230,0.3);
+  margin-bottom: 0.75rem;
+}
+.card h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--paper);
+  margin-bottom: 0.6rem;
+}
+.card p {
+  font-size: 0.85rem;
+  font-weight: 300;
+  line-height: 1.7;
+  color: rgba(244,239,230,0.5);
+  margin-bottom: 1.25rem;
+}
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+
+/* Inputs */
+label {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  color: rgba(244,239,230,0.35);
+  margin-bottom: 0.4rem;
+  text-transform: uppercase;
+}
+input[type=text], input[type=number], input[type=time], select, textarea {
+  width: 100%;
+  background: rgba(244,239,230,0.04);
+  border: 1px solid var(--border);
+  color: var(--paper);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 300;
+  padding: 0.7rem 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+  margin-bottom: 1rem;
+  -webkit-appearance: none;
+}
+input:focus, select:focus, textarea:focus { border-color: rgba(244,239,230,0.35); }
+select option { background: #111; }
+input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 2px;
+  background: rgba(244,239,230,0.1);
+  outline: none; margin: 0.5rem 0;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  background: var(--ember);
+  cursor: pointer;
+  border-radius: 0;
+}
+
+/* Buttons */
+.btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  background: none;
+  color: rgba(244,239,230,0.6);
+  padding: 0.65rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-block;
+}
+.btn:hover { border-color: rgba(244,239,230,0.35); color: var(--paper); }
+.btn.btn-ember { background: var(--ember); border-color: var(--ember); color: #fff; }
+.btn.btn-ember:hover { background: #a83d14; }
+.btn.btn-gold { background: var(--gold); border-color: var(--gold); color: #fff; }
+.btn.btn-full { width: 100%; text-align: center; }
+.btn.btn-sm { padding: 0.45rem 0.9rem; font-size: 0.6rem; }
+
+/* Timer display */
+.timer-face {
+  font-family: 'DM Mono', monospace;
+  font-size: 4rem;
+  font-weight: 500;
+  color: var(--paper);
+  text-align: center;
+  letter-spacing: 0.05em;
+  padding: 1.5rem 0;
+}
+.timer-face.running { color: var(--ember); }
+
+/* Progress arc (SVG) */
+.arc-wrap { display: flex; justify-content: center; margin: 0.5rem 0 1.5rem; }
+
+/* Bar */
+.bar-track {
+  background: rgba(244,239,230,0.07);
+  height: 3px;
+  margin: 0.4rem 0;
+}
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ember), var(--gold));
+  transition: width 0.4s ease;
+}
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: rgba(244,239,230,0.3);
+  margin-top: 0.3rem;
+}
+
+/* Habit grid */
+.habit-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 0; border-bottom: 1px solid var(--border);
+}
+.habit-row:last-child { border-bottom: none; }
+.habit-name { font-size: 0.85rem; font-weight: 400; color: rgba(244,239,230,0.75); }
+.habit-days { display: flex; gap: 0.35rem; }
+.habit-day {
+  width: 26px; height: 26px;
+  border: 1px solid rgba(244,239,230,0.12);
+  background: none; cursor: pointer;
+  font-family: 'DM Mono', monospace; font-size: 0.52rem;
+  color: rgba(244,239,230,0.25);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.habit-day.done { background: var(--ember); border-color: var(--ember); color: #fff; }
+.habit-day:hover:not(.done) { border-color: rgba(244,239,230,0.3); }
+
+/* XP stat boxes */
+.stat-box { text-align: center; padding: 1.5rem; background: rgba(244,239,230,0.02); border: 1px solid var(--border); }
+.stat-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem; font-weight: 400;
+  color: var(--paper);
+}
+.stat-lbl {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem; letter-spacing: 0.2em;
+  color: rgba(244,239,230,0.3);
+  margin-top: 0.3rem;
+}
+
+/* Badge */
+.badge-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+.badge-item {
+  width: 72px; text-align: center; opacity: 0.2; transition: opacity 0.4s;
+}
+.badge-item.earned { opacity: 1; }
+.badge-icon {
+  width: 52px; height: 52px; margin: 0 auto 0.5rem;
+  border: 1px solid rgba(244,239,230,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  background: rgba(244,239,230,0.03);
+}
+.badge-item.earned .badge-icon { border-color: var(--gold); background: var(--gold-dim); }
+.badge-name { font-size: 0.6rem; font-family: 'DM Mono', monospace; color: rgba(244,239,230,0.4); letter-spacing: 0.05em; }
+
+/* Chart */
+canvas.chart { width: 100%; height: 160px; display: block; }
+
+/* Playbook */
+.chapter { margin-bottom: 3.5rem; padding-bottom: 3.5rem; border-bottom: 1px solid var(--border); }
+.chapter:last-child { border-bottom: none; }
+.ch-num {
+  font-family: 'DM Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 0.35em; color: rgba(244,239,230,0.25);
+  margin-bottom: 0.5rem;
+}
+.ch-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.65rem; font-weight: 600;
+  color: var(--paper); margin-bottom: 1.25rem; line-height: 1.2;
+}
+.ch-body {
+  font-size: 0.9rem; font-weight: 300; line-height: 1.9;
+  color: rgba(244,239,230,0.62); margin-bottom: 1rem;
+}
+.pull-quote {
+  border-left: 2px solid var(--ember);
+  margin: 1.75rem 0;
+  padding: 0.75rem 1.5rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem; font-style: italic;
+  color: rgba(244,239,230,0.8); line-height: 1.6;
+}
+.strategy-box {
+  background: rgba(201,78,26,0.06); border: 1px solid rgba(201,78,26,0.2);
+  padding: 1.25rem 1.5rem; margin: 1.25rem 0;
+}
+.strategy-box h4 {
+  font-family: 'DM Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--ember); margin-bottom: 0.75rem;
+}
+.strategy-box ul { list-style: none; }
+.strategy-box li {
+  font-size: 0.85rem; font-weight: 300; line-height: 1.7;
+  padding: 0.2rem 0 0.2rem 1.2rem; position: relative;
+  color: rgba(244,239,230,0.65);
+}
+.strategy-box li::before { content: '—'; position: absolute; left: 0; color: var(--ember); }
+
+/* 30-Day Challenge */
+.challenge-day {
+  display: flex; gap: 1rem; padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.15s;
+  padding-left: 0.5rem; margin: 0 -0.5rem; padding-right: 0.5rem;
+}
+.challenge-day:hover { background: rgba(244,239,230,0.02); }
+.challenge-day.completed .cd-num { color: var(--ember); }
+.challenge-day.completed .cd-check { background: var(--ember); border-color: var(--ember); }
+.challenge-day.today { background: rgba(201,78,26,0.05); }
+.cd-num {
+  font-family: 'DM Mono', monospace; font-size: 0.7rem;
+  color: rgba(244,239,230,0.25); min-width: 2rem; padding-top: 0.15rem;
+}
+.cd-content { flex: 1; }
+.cd-category {
+  font-family: 'DM Mono', monospace; font-size: 0.55rem;
+  letter-spacing: 0.25em; color: var(--gold); margin-bottom: 0.2rem;
+}
+.cd-title { font-size: 0.88rem; font-weight: 500; color: var(--paper); margin-bottom: 0.25rem; }
+.cd-desc { font-size: 0.8rem; font-weight: 300; color: rgba(244,239,230,0.45); line-height: 1.6; }
+.cd-check {
+  width: 22px; height: 22px;
+  border: 1px solid rgba(244,239,230,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; flex-shrink: 0; margin-top: 0.1rem;
+  transition: all 0.2s;
+}
+
+/* Routine steps */
+.routine-step {
+  display: flex; gap: 1rem; padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.rs-num {
+  font-family: 'DM Mono', monospace; font-size: 0.62rem;
+  color: var(--ember); min-width: 2rem; padding-top: 0.2rem;
+}
+.rs-body { flex: 1; }
+.rs-time-tag {
+  font-family: 'DM Mono', monospace; font-size: 0.6rem;
+  color: rgba(244,239,230,0.3); margin-bottom: 0.2rem;
+}
+.rs-title { font-size: 0.88rem; font-weight: 500; color: var(--paper); margin-bottom: 0.25rem; }
+.rs-desc { font-size: 0.8rem; font-weight: 300; color: rgba(244,239,230,0.45); line-height: 1.6; }
+
+/* Sleep tracking radar */
+.check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+.check-item { background: rgba(244,239,230,0.02); border: 1px solid var(--border); padding: 1rem; }
+.check-item-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.2em; color: rgba(244,239,230,0.3); margin-bottom: 0.5rem; }
+.check-item-val { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--paper); }
+
+/* Toast */
+#toast {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 1000;
+  background: rgba(17,16,20,0.96); border: 1px solid var(--border);
+  padding: 1rem 1.5rem; max-width: 300px;
+  backdrop-filter: blur(12px);
+  transform: translateY(120%); transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+#toast.show { transform: translateY(0); }
+.toast-tag {
+  font-family: 'DM Mono', monospace; font-size: 0.58rem;
+  letter-spacing: 0.25em; color: var(--gold); margin-bottom: 0.3rem;
+}
+.toast-msg { font-size: 0.82rem; font-weight: 300; color: rgba(244,239,230,0.75); line-height: 1.5; }
+
+/* Home / Profile panel */
+.profile-hero {
+  display: flex; align-items: flex-start; gap: 2rem;
+  padding-bottom: 2rem; border-bottom: 1px solid var(--border); margin-bottom: 2.5rem;
+}
+.profile-big-avatar {
+  width: 72px; height: 72px; flex-shrink: 0;
+  background: var(--ember-dim); border: 1px solid var(--ember);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--ember);
+}
+.profile-big-name {
+  font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 400; color: var(--paper);
+}
+.profile-big-level {
+  font-family: 'DM Mono', monospace; font-size: 0.65rem;
+  letter-spacing: 0.2em; color: var(--gold); margin: 0.4rem 0 0.8rem;
+}
+.profile-big-xp { font-size: 0.82rem; font-weight: 300; color: rgba(244,239,230,0.4); }
+
+/* Scroll progress indicator for landing */
+#pageProgress {
+  position: fixed; top: 0; left: 0; height: 2px; z-index: 201;
+  background: var(--ember); transition: width 0.1s;
+  width: 0%;
+}
+
+@media (max-width: 768px) {
+  #sidebar { width: 100%; position: absolute; z-index: 10; height: 100%; transform: translateX(-100%); transition: transform 0.3s; }
+  #sidebar.open { transform: none; }
+  #appContent { width: 100%; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .manifesto-grid { grid-template-columns: 1fr; }
+  #mainNav { padding: 1rem 1.5rem; }
+  .land-section { padding: 6rem 1.5rem; }
+  .module-panel { padding: 2rem 1.25rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div id="pageProgress"></div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <div class="nav-logo">ScreenBreak</div>
+  <div class="nav-right">
+    <a class="nav-link" href="#what">What it is</a>
+    <a class="nav-link" href="#modules">Modules</a>
+    <a class="nav-link" href="#science">Science</a>
+    <button class="nav-cta" onclick="openApp()">Enter App</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     HERO — FULL SCROLL ANIMATION
+══════════════════════════════════════ -->
+<div id="hero">
+  <div id="hero-sticky">
+    <canvas id="skyCanvas"></canvas>
+
+    <!-- Layer 0: Title (0–25%) -->
+    <div class="hero-layer" id="hl0">
+      <div class="hero-mono">Digital Clarity · Mental Sovereignty</div>
+      <h1 class="hero-title">Screen<em>Break</em></h1>
+      <p class="hero-sub">Reclaiming your attention isn't a question of willpower.<br>It's a question of architecture.</p>
+    </div>
+
+    <!-- Layer 1: What (25–55%) -->
+    <div class="hero-layer hidden" id="hl1">
+      <div class="hero-mono">The Problem</div>
+      <h2 class="hero-title" style="font-size: clamp(2.5rem,7vw,5.5rem);">You were<br><em>engineered</em><br>to scroll.</h2>
+      <p class="hero-sub" style="margin-top:1rem;">Billions were spent perfecting the mechanisms that keep you locked to a screen. Understanding that is the first step out.</p>
+    </div>
+
+    <!-- Layer 2: Solution (55–85%) -->
+    <div class="hero-layer hidden" id="hl2">
+      <div class="hero-mono">The Solution</div>
+      <h2 class="hero-title" style="font-size: clamp(2.5rem,7vw,5.5rem);">A system<br><em>built</em><br>for you.</h2>
+      <p class="hero-sub" style="margin-top:1rem;">ScreenBreak isn't a productivity app. It's a behavioral architecture — tools, science, and structure designed around how your brain actually works.</p>
+    </div>
+
+    <!-- Layer 3: CTA (85–100%) -->
+    <div class="hero-layer hidden" id="hl3">
+      <div class="hero-mono">You're Outside Now</div>
+      <h2 class="hero-title" style="font-size: clamp(2.5rem,7vw,5rem);">The storm<br><em>was</em><br>inside.</h2>
+      <p class="hero-sub" style="margin-top:1rem;">Step back from the screen. See clearly. This is what the other side feels like.</p>
+      <button class="btn-primary" style="margin-top:2.5rem; pointer-events:all;" onclick="openApp()">Begin Your Recovery</button>
+    </div>
+
+    <div class="scroll-cue" id="scrollCue">
+      <div class="scroll-line"></div>
+      <span>Scroll to explore</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     LANDING CONTENT
+══════════════════════════════════════ -->
+<div id="landing">
+
+  <!-- WHAT IT IS -->
+  <div id="what" class="land-section">
+    <div class="s-label">What is ScreenBreak</div>
+    <h2 class="s-title">Not an app.<br><em>A complete system.</em></h2>
+    <p class="s-body">ScreenBreak is a premium behavioral change platform built on the intersection of neuroscience, behavioral psychology, and precision habit engineering. It gives you the exact tools, knowledge, and structure that clinical researchers use — delivered as a coherent, intelligent system.</p>
+
+    <div class="manifesto-grid">
+      <div class="manifesto-cell">
+        <div class="manifesto-icon">01 — Foundation</div>
+        <h3>Neuroscience-first design</h3>
+        <p>Every tool is built around how dopamine, the prefrontal cortex, and habit loops actually function. No motivation speak. No vague advice. Pure mechanism.</p>
+      </div>
+      <div class="manifesto-cell">
+        <div class="manifesto-icon">02 — Precision</div>
+        <h3>Individualized, not generic</h3>
+        <p>Your Routine Generator builds a daily protocol from your specific wake time, profession, problem patterns, and target outcomes. No two routines are the same.</p>
+      </div>
+      <div class="manifesto-cell">
+        <div class="manifesto-icon">03 — Accountability</div>
+        <h3>Progress that compounds</h3>
+        <p>XP, levels, streaks, and a 30-day structured challenge create the accountability scaffold that willpower alone can never provide.</p>
+      </div>
+      <div class="manifesto-cell">
+        <div class="manifesto-icon">04 — Knowledge</div>
+        <h3>The Playbook — not a blog post</h3>
+        <p>A deeply researched, elegantly written guide covering the psychology of phone addiction, friction engineering, dopamine detox, and long-term rewiring.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULES -->
+  <div id="modules" style="background: rgba(244,239,230,0.02); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="land-section">
+      <div class="s-label">Inside ScreenBreak</div>
+      <h2 class="s-title">Six modules.<br><em>One coherent system.</em></h2>
+
+      <div class="modules-list">
+        <div class="module-row" onclick="openApp('home')">
+          <div class="module-num">00</div>
+          <div class="module-info">
+            <h3>Home & Profile</h3>
+            <p>Your command center. See your XP, streak, level, earned badges, and today's daily challenge at a glance. Track your behavioral arc over time.</p>
+          </div>
+          <div class="module-arrow">→</div>
+        </div>
+        <div class="module-row" onclick="openApp('timer')">
+          <div class="module-num">01</div>
+          <div class="module-info">
+            <h3>Focus Tools</h3>
+            <p>Phone-free session timer with preset blocks, lock-time scheduler, and a 7-day habit matrix for zero-phone routines. Every session earns XP.</p>
+          </div>
+          <div class="module-arrow">→</div>
+        </div>
+        <div class="module-row" onclick="openApp('checkin')">
+          <div class="module-num">02</div>
+          <div class="module-info">
+            <h3>Daily Check-In</h3>
+            <p>A structured daily self-assessment tracking energy, focus quality, craving intensity, and sleep. Builds a data portrait of your recovery over time.</p>
+          </div>
+          <div class="module-arrow">→</div>
+        </div>
+        <div class="module-row" onclick="openApp('routine')">
+          <div class="module-num">03</div>
+          <div class="module-info">
+            <h3>Routine Generator</h3>
+            <p>Fill in your personal parameters. Receive a precision-timed daily architecture — specific, actionable, and built around your life.</p>
+          </div>
+          <div class="module-arrow">→</div>
+        </div>
+        <div class="module-row" onclick="openApp('challenge')">
+          <div class="module-num">04</div>
+          <div class="module-info">
+            <h3>30-Day Challenge</h3>
+            <p>A structured, science-backed 30-day program. Each day introduces one specific behavioral intervention. Graduated difficulty. Real psychological depth.</p>
+          </div>
+          <div class="module-arrow">→</div>
+        </div>
+        <div class="module-row" onclick="openApp('playbook')">
+          <div class="module-num">05</div>
+          <div class="module-info">
+            <h3>The Playbook</h3>
+            <p>A full-length behavioral guide written in precise, human prose. Covers the neuroscience of addiction, friction engineering, morning protocols, and reset techniques.</p>
+          </div>
+          <div class="module-arrow">→</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCIENCE -->
+  <div id="science" class="land-section">
+    <div class="s-label">The Science Behind It</div>
+    <h2 class="s-title">Built on what<br><em>actually works.</em></h2>
+    <p class="s-body">ScreenBreak synthesizes research from behavioral economics, clinical psychology, and neuroscience — translated into tools you can use today, not principles to think about tomorrow.</p>
+
+    <div style="margin-top: 4rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem;">
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.3em; color:var(--ember); margin-bottom:0.75rem;">Variable Reward</div>
+        <p style="font-size:0.85rem; font-weight:300; line-height:1.8; color:rgba(244,239,230,0.55);">The same mechanism that drives slot machine addiction powers every social feed. Understanding this isn't abstract — it changes how you relate to the pull.</p>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.3em; color:var(--ember); margin-bottom:0.75rem;">Friction Engineering</div>
+        <p style="font-size:0.85rem; font-weight:300; line-height:1.8; color:rgba(244,239,230,0.55);">Inserting deliberate friction between impulse and action gives your prefrontal cortex time to engage. This is the fastest structural change available to you.</p>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.3em; color:var(--ember); margin-bottom:0.75rem;">Identity-Based Habits</div>
+        <p style="font-size:0.85rem; font-weight:300; line-height:1.8; color:rgba(244,239,230,0.55);">Research consistently shows that behavioral change sustained by identity ("I am someone who...") is three times more durable than goal-based change ("I want to...").</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <div class="s-label">Begin</div>
+    <h2 class="s-title">The first step is<br><em>always deliberate.</em></h2>
+    <p class="s-body">Open the system. Start with one session. The compound effect begins on day one.</p>
+    <button class="btn-primary" onclick="openApp()">Enter ScreenBreak</button>
+  </div>
+
+</div>
+<!-- end landing -->
+
+<!-- ══════════════════════════════════════
+     APP SHELL
+══════════════════════════════════════ -->
+<div id="appShell">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">ScreenBreak</div>
+      <button class="sidebar-close" onclick="closeApp()">✕</button>
+    </div>
+
+    <div class="sidebar-profile">
+      <div class="profile-avatar" id="sideAvatar">S</div>
+      <div class="profile-name" id="sideName">User</div>
+      <div class="profile-level" id="sideLevel">Level 1 — Awakening</div>
+      <div class="profile-xp-bar">
+        <div class="profile-xp-fill" id="sideXpFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Navigation</div>
+      <div class="sidebar-item active" data-panel="home" onclick="switchPanel('home')">
+        <div class="si-icon">⌂</div>
+        <div class="si-label">Home</div>
+      </div>
+      <div class="sidebar-item" data-panel="timer" onclick="switchPanel('timer')">
+        <div class="si-icon">◷</div>
+        <div class="si-label">Focus Tools</div>
+      </div>
+      <div class="sidebar-item" data-panel="checkin" onclick="switchPanel('checkin')">
+        <div class="si-icon">◈</div>
+        <div class="si-label">Daily Check-In</div>
+        <div class="si-badge" id="checkinBadge" style="display:none;">NEW</div>
+      </div>
+      <div class="sidebar-item" data-panel="routine" onclick="switchPanel('routine')">
+        <div class="si-icon">⟳</div>
+        <div class="si-label">Routine Generator</div>
+      </div>
+      <div class="sidebar-item" data-panel="challenge" onclick="switchPanel('challenge')">
+        <div class="si-icon">▲</div>
+        <div class="si-label">30-Day Challenge</div>
+        <div class="si-badge" id="challengeBadge">D1</div>
+      </div>
+      <div class="sidebar-item" data-panel="playbook" onclick="switchPanel('playbook')">
+        <div class="si-icon">☰</div>
+        <div class="si-label">Playbook</div>
+      </div>
+      <div class="nav-section-label" style="margin-top:1rem;">Progress</div>
+      <div class="sidebar-item" data-panel="progress" onclick="switchPanel('progress')">
+        <div class="si-icon">◉</div>
+        <div class="si-label">XP & Badges</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="appContent">
+
+    <!-- HOME PANEL -->
+    <div class="module-panel active" id="panel-home">
+      <div class="mod-header">
+        <div class="mod-label">Home</div>
+        <div class="mod-title">Good morning.</div>
+        <div class="mod-desc" id="homeGreeting">Here's where you are. Here's what's next.</div>
+      </div>
+
+      <div class="profile-hero">
+        <div class="profile-big-avatar" id="homeAvatar">S</div>
+        <div>
+          <div class="profile-big-name" id="homeName">Your Name</div>
+          <div class="profile-big-level" id="homeLevel">Level 1 — Awakening</div>
+          <div class="profile-big-xp" id="homeXp">0 XP · 0-day streak</div>
+          <div style="margin-top:1rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+            <button class="btn btn-ember btn-sm" onclick="switchPanel('checkin')">Daily Check-In</button>
+            <button class="btn btn-sm" onclick="switchPanel('challenge')">Today's Challenge</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Setup form (shown first time) -->
+      <div id="setupForm" class="card" style="margin-bottom:1.5rem;">
+        <div class="card-label">Setup — One Time</div>
+        <h3>Tell us about yourself</h3>
+        <p>This personalizes your experience across all modules.</p>
+        <label>Your name</label>
+        <input type="text" id="setupName" placeholder="First name">
+        <label>Your main challenge</label>
+        <select id="setupChallenge">
+          <option>Doomscrolling social media</option>
+          <option>Constant notification checking</option>
+          <option>Using phone as sleep aid</option>
+          <option>YouTube / streaming binge</option>
+          <option>Reflexive phone checking</option>
+          <option>All of the above</option>
+        </select>
+        <label>Daily screen time goal (hours)</label>
+        <input type="number" id="setupGoal" value="2" min="0.5" max="8" step="0.5">
+        <button class="btn btn-ember" onclick="saveSetup()">Save Profile</button>
+      </div>
+
+      <!-- Today's summary -->
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <div class="card-label">Today's Challenge</div>
+          <div id="todayChallengeTitle" style="font-family:'Cormorant Garamond',serif; font-size:1.2rem; color:var(--paper); margin-bottom:0.5rem;">Loading...</div>
+          <div id="todayChallengeDesc" style="font-size:0.8rem; font-weight:300; color:rgba(244,239,230,0.45); line-height:1.6; margin-bottom:1rem;"></div>
+          <button class="btn btn-sm" onclick="switchPanel('challenge')">Go to Challenge →</button>
+        </div>
+        <div class="card">
+          <div class="card-label">Sessions Today</div>
+          <div style="font-family:'Cormorant Garamond',serif; font-size:3rem; color:var(--paper);" id="homeSessionCount">0</div>
+          <div style="font-size:0.8rem; color:rgba(244,239,230,0.35); font-weight:300; margin-bottom:1rem;">focus sessions completed</div>
+          <button class="btn btn-sm" onclick="switchPanel('timer')">Start a Session →</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Weekly Habit Completion</div>
+        <div id="homeHabitSummary" style="font-size:0.85rem; font-weight:300; color:rgba(244,239,230,0.5); margin-bottom:0.5rem;"></div>
+        <div class="bar-track"><div class="bar-fill" id="homeHabitBar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- FOCUS TOOLS PANEL -->
+    <div class="module-panel" id="panel-timer">
+      <div class="mod-header">
+        <div class="mod-label">Module 01</div>
+        <div class="mod-title">Focus Tools</div>
+        <div class="mod-desc">Every phone-free session is a neurological deposit. Start one. Let it run. Collect the XP.</div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+        <!-- Timer Card -->
+        <div class="card">
+          <div class="card-label">Phone-Free Timer</div>
+          <h3>Session Block</h3>
+          <p>Define a block. Let it run. Do not check the phone. The timer is your commitment made visible.</p>
+
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+            <button class="btn btn-sm" onclick="setPreset(15)">15m</button>
+            <button class="btn btn-sm" onclick="setPreset(25)">25m</button>
+            <button class="btn btn-sm" onclick="setPreset(45)">45m</button>
+            <button class="btn btn-sm" onclick="setPreset(60)">1h</button>
+            <button class="btn btn-sm" onclick="setPreset(90)">90m</button>
+            <button class="btn btn-sm" onclick="setPreset(120)">2h</button>
+          </div>
+
+          <label>Custom duration (minutes)</label>
+          <input type="number" id="customMins" value="25" min="1" max="480" onchange="setCustomTimer()">
+
+          <!-- SVG arc timer -->
+          <div class="arc-wrap">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(244,239,230,0.06)" stroke-width="6"/>
+              <circle id="timerArc" cx="80" cy="80" r="68" fill="none" stroke="var(--ember)" stroke-width="6"
+                stroke-dasharray="427.3" stroke-dashoffset="0" stroke-linecap="square"
+                transform="rotate(-90 80 80)" style="transition: stroke-dashoffset 0.5s;"/>
+              <text x="80" y="84" text-anchor="middle" font-family="DM Mono" font-size="22" fill="var(--paper)" id="timerSVGText">25:00</text>
+              <text x="80" y="104" text-anchor="middle" font-family="DM Mono" font-size="9" fill="rgba(244,239,230,0.3)" id="timerStatus">READY</text>
+            </svg>
+          </div>
+
+          <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+            <button class="btn btn-ember" id="timerBtn" onclick="timerToggle()">Start</button>
+            <button class="btn" onclick="timerReset()">Reset</button>
+          </div>
+          <div style="text-align:center; margin-top:1rem; font-family:'DM Mono',monospace; font-size:0.6rem; color:rgba(244,239,230,0.3);">
+            Sessions today: <span id="sessCountDisplay">0</span>
+          </div>
+        </div>
+
+        <!-- Lock time -->
+        <div class="card">
+          <div class="card-label">Digital Curfew</div>
+          <h3>Lock-Time Protocol</h3>
+          <p>Define windows when your phone does not exist. Writing this down creates a commitment contract with yourself.</p>
+          <label>Lock begins</label>
+          <input type="time" id="lockStart" value="22:00">
+          <label>Lock ends</label>
+          <input type="time" id="lockEnd" value="07:00">
+          <label>Context</label>
+          <select id="lockContext">
+            <option>Sleep optimization</option>
+            <option>Deep work block</option>
+            <option>Meal time</option>
+            <option>Exercise</option>
+            <option>Social time</option>
+            <option>Morning protocol</option>
+          </select>
+          <button class="btn btn-ember btn-full" onclick="saveLock()">Commit to this window</button>
+          <div id="lockConfirm" style="margin-top:0.75rem; font-size:0.78rem; color:var(--ember); display:none;"></div>
+        </div>
+      </div>
+
+      <!-- Habits -->
+      <div class="card">
+        <div class="card-label">Habit Matrix</div>
+        <h3>7-Day Phone-Free Habits</h3>
+        <p>Track your daily zero-phone commitments. Each tick is a neural pathway strengthened.</p>
+        <div id="habitContainer"></div>
+        <div style="display:flex; gap:0.75rem; margin-top:1.25rem; align-items:center;">
+          <input type="text" id="newHabit" placeholder="Add a habit..." style="flex:1; margin-bottom:0;">
+          <button class="btn btn-ember" onclick="addHabit()">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHECK-IN PANEL -->
+    <div class="module-panel" id="panel-checkin">
+      <div class="mod-header">
+        <div class="mod-label">Module 02</div>
+        <div class="mod-title">Daily Check-In</div>
+        <div class="mod-desc">A structured self-assessment. Not journaling into a void — a data point that reveals patterns you can't see in the moment.</div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <div class="card-label">Today's Metrics</div>
+          <h3>How are you, actually?</h3>
+
+          <div style="margin-bottom:1.25rem;">
+            <label>Energy level</label>
+            <div style="display:flex;justify-content:space-between; font-size:0.7rem; color:rgba(244,239,230,0.3); margin-bottom:0.3rem;"><span>Depleted</span><span id="energyLabel">5</span><span>Optimal</span></div>
+            <input type="range" min="1" max="10" value="5" id="energySlider" oninput="updateSlider('energy',this.value)">
+          </div>
+          <div style="margin-bottom:1.25rem;">
+            <label>Focus quality</label>
+            <div style="display:flex;justify-content:space-between; font-size:0.7rem; color:rgba(244,239,230,0.3); margin-bottom:0.3rem;"><span>Scattered</span><span id="focusLabel">5</span><span>Sharp</span></div>
+            <input type="range" min="1" max="10" value="5" id="focusSlider" oninput="updateSlider('focus',this.value)">
+          </div>
+          <div style="margin-bottom:1.25rem;">
+            <label>Phone craving intensity</label>
+            <div style="display:flex;justify-content:space-between; font-size:0.7rem; color:rgba(244,239,230,0.3); margin-bottom:0.3rem;"><span>None</span><span id="urgeLabel">5</span><span>Overwhelming</span></div>
+            <input type="range" min="0" max="10" value="5" id="urgeSlider" oninput="updateSlider('urge',this.value)">
+          </div>
+          <div style="margin-bottom:1.25rem;">
+            <label>Last night's sleep quality</label>
+            <div style="display:flex;justify-content:space-between; font-size:0.7rem; color:rgba(244,239,230,0.3); margin-bottom:0.3rem;"><span>Poor</span><span id="sleepLabel">6</span><span>Excellent</span></div>
+            <input type="range" min="1" max="10" value="6" id="sleepSlider" oninput="updateSlider('sleep',this.value)">
+          </div>
+          <div style="margin-bottom:1.25rem;">
+            <label>Screen time today (hours)</label>
+            <div style="display:flex;justify-content:space-between; font-size:0.7rem; color:rgba(244,239,230,0.3); margin-bottom:0.3rem;"><span>0h</span><span id="screenLabel">3h</span><span>12h</span></div>
+            <input type="range" min="0" max="12" step="0.5" value="3" id="screenSlider" oninput="updateSlider('screen',this.value)">
+          </div>
+          <label>Note (optional)</label>
+          <textarea id="checkinNote" rows="2" placeholder="What triggered you today? What helped?"></textarea>
+          <button class="btn btn-ember btn-full" onclick="submitCheckin()">Submit Check-In</button>
+        </div>
+
+        <div>
+          <div class="card" style="margin-bottom:1rem;">
+            <div class="card-label">7-Day Trend</div>
+            <canvas class="chart" id="checkinChart"></canvas>
+          </div>
+          <div class="card">
+            <div class="card-label">Screen Time Log</div>
+            <div id="screenLogGrid" style="display:grid; grid-template-columns:repeat(10,1fr); gap:3px; margin-top:0.5rem;"></div>
+            <div style="display:flex; gap:1rem; margin-top:0.75rem; font-size:0.7rem; color:rgba(244,239,230,0.3); font-family:'DM Mono',monospace;">
+              <span>■ Low</span><span style="color:rgba(201,78,26,0.5);">■</span><span>High</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROUTINE GENERATOR PANEL -->
+    <div class="module-panel" id="panel-routine">
+      <div class="mod-header">
+        <div class="mod-label">Module 03</div>
+        <div class="mod-title">Routine Generator</div>
+        <div class="mod-desc">Complete the parameters. Receive a precision-timed daily protocol built specifically around your life.</div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:2rem;">
+        <div class="card">
+          <div class="card-label">Your Life Parameters</div>
+          <h3>Tell the system about you</h3>
+          <label>Wake time</label>
+          <input type="time" id="rWake" value="07:00">
+          <label>Sleep time</label>
+          <input type="time" id="rSleep" value="23:00">
+          <label>Daily work hours</label>
+          <input type="number" id="rWork" value="8" min="0" max="16">
+          <label>Primary problem</label>
+          <select id="rProblem">
+            <option>Doomscrolling social media</option>
+            <option>Constant notifications</option>
+            <option>Phone as sleep aid</option>
+            <option>Streaming binge</option>
+            <option>Reflexive checking</option>
+            <option>All of the above</option>
+          </select>
+          <label>Replacement activity</label>
+          <select id="rReplace">
+            <option>Reading</option>
+            <option>Exercise / movement</option>
+            <option>Meditation</option>
+            <option>Creative work</option>
+            <option>Social connection</option>
+            <option>Deep work / study</option>
+            <option>Time in nature</option>
+          </select>
+        </div>
+        <div class="card">
+          <div class="card-label">Protocol Settings</div>
+          <h3>Calibrate the intensity</h3>
+          <label>Protocol intensity</label>
+          <select id="rIntensity">
+            <option value="soft">Gentle — one step at a time</option>
+            <option value="medium" selected>Balanced — ambitious but realistic</option>
+            <option value="hard">Hardcore — complete behavioral reset</option>
+          </select>
+          <label>Daily screen time target</label>
+          <div style="display:flex;justify-content:space-between; font-size:0.7rem; color:rgba(244,239,230,0.3); margin-bottom:0.3rem;"><span>30min</span><span id="targetLabel">2h</span><span>6h</span></div>
+          <input type="range" min="0.5" max="6" step="0.5" value="2" id="targetSlider" oninput="document.getElementById('targetLabel').textContent=this.value+'h'">
+          <label style="margin-top:1rem;">Morning phone-free window</label>
+          <select id="rMorning">
+            <option value="30">30 minutes</option>
+            <option value="60" selected>60 minutes</option>
+            <option value="90">90 minutes</option>
+            <option value="120">2 hours</option>
+          </select>
+          <label>Check-in batching windows</label>
+          <select id="rBatching">
+            <option value="3">Three windows per day (9am, 1pm, 6pm)</option>
+            <option value="2">Two windows per day (9am, 6pm)</option>
+            <option value="1">One window per day (6pm only)</option>
+          </select>
+          <button class="btn btn-ember btn-full" style="margin-top:0.5rem;" onclick="buildRoutine()">Generate My Routine</button>
+        </div>
+      </div>
+
+      <div id="routineResult" style="display:none;">
+        <div class="card">
+          <div class="card-label">Your Personalized Protocol</div>
+          <h3 id="routineTitle" style="margin-bottom:1.5rem;"></h3>
+          <div id="routineSteps"></div>
+          <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid var(--border);">
+            <button class="btn btn-sm" onclick="switchPanel('timer')">Start First Session →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 30-DAY CHALLENGE PANEL -->
+    <div class="module-panel" id="panel-challenge">
+      <div class="mod-header">
+        <div class="mod-label">Module 04</div>
+        <div class="mod-title">30-Day Challenge</div>
+        <div class="mod-desc">One evidence-based behavioral intervention per day. Graduated difficulty. Cumulative psychological depth. This is the core program.</div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <div class="card-label">Overall Progress</div>
+          <div style="font-family:'Cormorant Garamond',serif; font-size:3.5rem; color:var(--paper);" id="challengeCompleted">0</div>
+          <div style="font-size:0.78rem; color:rgba(244,239,230,0.35); font-weight:300; margin-bottom:0.75rem;">of 30 days completed</div>
+          <div class="bar-track"><div class="bar-fill" id="challengeBar" style="width:0%"></div></div>
+          <div class="bar-label"><span>Day 1</span><span>Day 30</span></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Current Phase</div>
+          <div id="challengePhase" style="font-family:'Cormorant Garamond',serif; font-size:1.4rem; color:var(--paper); margin-bottom:0.5rem;"></div>
+          <div id="challengePhaseDesc" style="font-size:0.82rem; font-weight:300; color:rgba(244,239,230,0.45); line-height:1.65;"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Daily Tasks</div>
+        <div id="challengeList"></div>
+      </div>
+    </div>
+
+    <!-- PLAYBOOK PANEL -->
+    <div class="module-panel" id="panel-playbook">
+      <div class="mod-header">
+        <div class="mod-label">Module 05</div>
+        <div class="mod-title">The Playbook</div>
+        <div class="mod-desc">A precise, deeply researched guide to understanding and permanently rewiring your relationship with your phone. Read linearly or jump by chapter.</div>
+      </div>
+
+      <div class="card" style="margin-bottom:1.5rem; background: rgba(201,78,26,0.04); border-color: rgba(201,78,26,0.2);">
+        <div style="display:flex; gap:2rem; flex-wrap:wrap;">
+          <div><div style="font-family:'DM Mono',monospace; font-size:0.58rem; letter-spacing:0.2em; color:var(--ember); margin-bottom:0.25rem;">Chapters</div><div style="font-family:'Cormorant Garamond',serif; font-size:1.4rem; color:var(--paper);">5</div></div>
+          <div><div style="font-family:'DM Mono',monospace; font-size:0.58rem; letter-spacing:0.2em; color:var(--ember); margin-bottom:0.25rem;">Reading Time</div><div style="font-family:'Cormorant Garamond',serif; font-size:1.4rem; color:var(--paper);">~45 min</div></div>
+          <div><div style="font-family:'DM Mono',monospace; font-size:0.58rem; letter-spacing:0.2em; color:var(--ember); margin-bottom:0.25rem;">Depth</div><div style="font-family:'Cormorant Garamond',serif; font-size:1.4rem; color:var(--paper);">Clinical</div></div>
+        </div>
+      </div>
+
+      <div id="playbookContent"></div>
+    </div>
+
+    <!-- PROGRESS PANEL -->
+    <div class="module-panel" id="panel-progress">
+      <div class="mod-header">
+        <div class="mod-label">Progress</div>
+        <div class="mod-title">XP & Achievements</div>
+        <div class="mod-desc">Every action accumulates. Every session compounds. Your behavioral history, made visible.</div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:1.5rem;">
+        <div class="stat-box"><div class="stat-val" id="pXP">0</div><div class="stat-lbl">Total XP</div></div>
+        <div class="stat-box"><div class="stat-val" id="pStreak">0</div><div class="stat-lbl">Day Streak</div></div>
+        <div class="stat-box"><div class="stat-val" id="pSess">0</div><div class="stat-lbl">Sessions</div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-label">Level Progression</div>
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.5rem;">
+          <div style="font-family:'Cormorant Garamond',serif; font-size:1.4rem; color:var(--paper);">Level <span id="pLevel">1</span> — <span id="pLevelName">Awakening</span></div>
+          <div style="font-family:'DM Mono',monospace; font-size:0.62rem; color:rgba(244,239,230,0.3);"><span id="pXPCur">0</span> / <span id="pXPNext">100</span> XP</div>
+        </div>
+        <div class="bar-track" style="height:4px;"><div class="bar-fill" id="pXPBar" style="width:0%"></div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-label">30-Day Screen Time</div>
+        <canvas class="chart" id="progressChart"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Achievements</div>
+        <div class="badge-grid" id="badgeGrid"></div>
+      </div>
+    </div>
+
+  </div><!-- end appContent -->
+</div><!-- end appShell -->
+
+<!-- TOAST -->
+<div id="toast">
+  <div class="toast-tag" id="toastTag"></div>
+  <div class="toast-msg" id="toastMsg"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   SKY CANVAS — SCROLL-DRIVEN FULL SCREEN
+═══════════════════════════════════════════════ */
+(function() {
+  const canvas = document.getElementById('skyCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  let prog = 0; // 0=sunrise → 1=outdoor storm
+
+  // Sky color palettes at 5 keypoints
+  const K = [
+    // p=0: Dawn inside room
+    { skyA:'#1a0a14', skyB:'#3d1a0a', horizon:'#c45020',
+      sunX:0.7, sunY:0.88, sunR:0.04, sunC:'#ff9944', sunGlow:'rgba(255,140,60,0.35)',
+      fogAlpha:0, roomAlpha:1, rainAlpha:0, flashAlpha:0,
+      stormCloudAlpha:0, dayCloudAlpha:0.3, starsAlpha:0.6, outsideAlpha:0 },
+    // p=0.25: Sunrise, zooming toward window
+    { skyA:'#1a2a50', skyB:'#d06020', horizon:'#ffa040',
+      sunX:0.65, sunY:0.7, sunR:0.055, sunC:'#ffdd66', sunGlow:'rgba(255,200,80,0.4)',
+      fogAlpha:0, roomAlpha:0.7, rainAlpha:0, flashAlpha:0,
+      stormCloudAlpha:0, dayCloudAlpha:0.6, starsAlpha:0.2, outsideAlpha:0 },
+    // p=0.55: Bright day, approaching window close
+    { skyA:'#1a4a90', skyB:'#5aaae0', horizon:'#a0d4f0',
+      sunX:0.6, sunY:0.3, sunR:0.06, sunC:'#fff8d0', sunGlow:'rgba(255,240,180,0.25)',
+      fogAlpha:0, roomAlpha:0.2, rainAlpha:0, flashAlpha:0,
+      stormCloudAlpha:0, dayCloudAlpha:0.9, starsAlpha:0, outsideAlpha:0 },
+    // p=0.78: Outside, dusk/storm rolling in
+    { skyA:'#0d0a18', skyB:'#2a1828', horizon:'#3a2030',
+      sunX:0.3, sunY:0.65, sunR:0.03, sunC:'rgba(255,80,30,0.5)', sunGlow:'rgba(200,60,20,0.2)',
+      fogAlpha:0.3, roomAlpha:0, rainAlpha:0.4, flashAlpha:0,
+      stormCloudAlpha:0.75, dayCloudAlpha:0, starsAlpha:0, outsideAlpha:1 },
+    // p=1: Full storm outside
+    { skyA:'#060408', skyB:'#0c080e', horizon:'#100a12',
+      sunX:0.3, sunY:0.65, sunR:0, sunC:'transparent', sunGlow:'rgba(0,0,0,0)',
+      fogAlpha:0, roomAlpha:0, rainAlpha:1, flashAlpha:0,
+      stormCloudAlpha:1, dayCloudAlpha:0, starsAlpha:0, outsideAlpha:1 }
+  ];
+  const KP = [0, 0.25, 0.55, 0.78, 1];
+
+  function lerp(a,b,t) { return a+(b-a)*t; }
+  function clamp(v,lo,hi) { return Math.max(lo,Math.min(hi,v)); }
+
+  function hexToRGB(h) {
+    if (!h || h==='transparent') return [0,0,0];
+    const m = h.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+    if (m) return [parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)];
+    return [0,0,0];
+  }
+  function lerpHex(c1,c2,t) {
+    const a=hexToRGB(c1),b=hexToRGB(c2);
+    return `rgb(${Math.round(lerp(a[0],b[0],t))},${Math.round(lerp(a[1],b[1],t))},${Math.round(lerp(a[2],b[2],t))})`;
+  }
+  function getK(p) {
+    for (let i=0; i<KP.length-1; i++) {
+      if (p<=KP[i+1]) {
+        const t = (p-KP[i])/(KP[i+1]-KP[i]);
+        const a=K[i], b=K[i+1];
+        const fl = (v1,v2)=>lerp(v1,v2,t);
+        return {
+          skyA: lerpHex(a.skyA, b.skyA, t),
+          skyB: lerpHex(a.skyB, b.skyB, t),
+          horizon: lerpHex(a.horizon, b.horizon, t),
+          sunX: fl(a.sunX,b.sunX), sunY: fl(a.sunY,b.sunY),
+          sunR: fl(a.sunR,b.sunR),
+          sunC: a.sunC, sunGlow: a.sunGlow,
+          fogAlpha: fl(a.fogAlpha,b.fogAlpha),
+          roomAlpha: fl(a.roomAlpha,b.roomAlpha),
+          rainAlpha: fl(a.rainAlpha,b.rainAlpha),
+          flashAlpha: fl(a.flashAlpha,b.flashAlpha),
+          stormCloudAlpha: fl(a.stormCloudAlpha,b.stormCloudAlpha),
+          dayCloudAlpha: fl(a.dayCloudAlpha,b.dayCloudAlpha),
+          starsAlpha: fl(a.starsAlpha,b.starsAlpha),
+          outsideAlpha: fl(a.outsideAlpha,b.outsideAlpha),
+        };
+      }
+    }
+    return K[K.length-1];
+  }
+
+  // Clouds
+  const dayClouds = Array.from({length:7}, ()=>({ x:Math.random(), y:0.08+Math.random()*0.35, w:0.08+Math.random()*0.14, h:0.025+Math.random()*0.04, spd:0.00005+Math.random()*0.00004 }));
+  const stormClouds = Array.from({length:5}, ()=>({ x:Math.random(), y:0.02+Math.random()*0.45, w:0.18+Math.random()*0.25, h:0.07+Math.random()*0.12, spd:0.00010+Math.random()*0.00006 }));
+  const stars = Array.from({length:120}, ()=>({ x:Math.random(), y:Math.random()*0.8, r:Math.random()*1.4+0.2 }));
+
+  let lightning = 0;
+  let lightningTimer = 0;
+
+  // ROOM drawing (perspective zoom effect)
+  function drawRoom(W, H, k) {
+    const ra = k.roomAlpha;
+    if (ra < 0.01) return;
+    ctx.save();
+    ctx.globalAlpha = ra;
+
+    // Dark room walls
+    ctx.fillStyle = `rgb(${Math.round(lerp(28,8,prog))},${Math.round(lerp(20,4,prog))},${Math.round(lerp(18,3,prog))})`;
+    ctx.fillRect(0, 0, W, H);
+
+    // Window - zoom effect: as prog increases, window grows to fill screen
+    // At prog=0: small window in center. At prog=0.55: window fills screen
+    const zoomProg = clamp(prog/0.55, 0, 1);
+    const eased = zoomProg * zoomProg * (3 - 2*zoomProg); // smoothstep
+
+    const winCX = W*0.5, winCY = H*0.38;
+    const winBaseW = W*0.42, winBaseH = H*0.5;
+    const winW = lerp(winBaseW, W*2.2, eased);
+    const winH = lerp(winBaseH, H*2.2, eased);
+    const winX = winCX - winW/2, winY = winCY - winH/2;
+
+    // Clip to window
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(winX, winY, winW, winH);
+    ctx.clip();
+
+    // Draw sky inside window (handled by main sky render behind)
+    ctx.fillStyle = 'rgba(0,0,0,0)'; // transparent — sky shows through
+    ctx.fillRect(winX, winY, winW, winH);
+    ctx.restore();
+
+    // Window frame (only visible when not fully zoomed)
+    if (eased < 0.92) {
+      const fw = Math.max(2, 6*(1-eased));
+      const fc = `rgba(40,30,22,${ra*(1-eased*0.8)})`;
+      ctx.fillStyle = fc;
+      // Outer frame
+      ctx.fillRect(winX-fw*2, winY-fw*2, winW+fw*4, fw*2); // top
+      ctx.fillRect(winX-fw*2, winY+winH, winW+fw*4, fw*2); // bottom
+      ctx.fillRect(winX-fw*2, winY, fw*2, winH); // left
+      ctx.fillRect(winX+winW, winY, fw*2, winH); // right
+      // Cross bar
+      ctx.fillRect(winX, winY+winH*0.45, winW, fw*0.8);
+      ctx.fillRect(winX+winW*0.5, winY, fw*0.8, winH);
+    }
+
+    // Room walls (only when window is small)
+    if (eased < 0.7) {
+      const wallAlpha = (1-eased/0.7)*ra;
+      // Left wall
+      ctx.fillStyle = `rgba(22,16,12,${wallAlpha})`;
+      ctx.fillRect(0, 0, winX, H);
+      // Right wall
+      ctx.fillRect(winX+winW, 0, W-(winX+winW), H);
+      // Top wall
+      ctx.fillRect(0, 0, W, winY);
+      // Floor
+      ctx.fillStyle = `rgba(14,10,8,${wallAlpha})`;
+      ctx.fillRect(0, winY+winH, W, H-(winY+winH));
+
+      // Pixel person leaning on right wall
+      if (eased < 0.4) {
+        const pa = (1 - eased/0.4) * ra;
+        drawPerson(W*0.72, H*0.42, W*0.14, H*0.48, pa);
+      }
+    }
+
+    ctx.restore();
+  }
+
+  function drawPerson(x, y, w, h, alpha) {
+    ctx.save(); ctx.globalAlpha = alpha;
+    const px = w/10;
+    // Legs
+    ctx.fillStyle='#1e1a28';
+    ctx.fillRect(x+w*.38, y+h*.62, px*1.4, h*.35);
+    ctx.fillRect(x+w*.54, y+h*.62, px*1.4, h*.35);
+    // Body - slouching
+    ctx.fillStyle='#2e2840';
+    ctx.fillRect(x+w*.28, y+h*.32, w*.46, h*.32);
+    // Head
+    ctx.fillStyle='#c4a070';
+    ctx.fillRect(x+w*.36, y+h*.12, w*.28, h*.22);
+    // Hair
+    ctx.fillStyle='#120e08';
+    ctx.fillRect(x+w*.36, y+h*.12, w*.28, h*.07);
+    // Phone glow
+    ctx.fillStyle='rgba(80,140,255,0.12)';
+    ctx.fillRect(x+w*.3, y+h*.12, w*.35, h*.22);
+    // Phone
+    ctx.fillStyle='#0a0a0e';
+    ctx.fillRect(x+w*.4, y+h*.35, w*.22, h*.16);
+    ctx.fillStyle='rgba(90,150,255,0.85)';
+    ctx.fillRect(x+w*.42, y+h*.36, w*.18, h*.13);
+    // Arm holding phone
+    ctx.fillStyle='#2e2840';
+    ctx.fillRect(x+w*.28, y+h*.34, px, h*.18);
+    ctx.fillRect(x+w*.28, y+h*.5, w*.14, px*.8);
+    ctx.restore();
+  }
+
+  function drawSky(W, H, k) {
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0, k.skyA);
+    g.addColorStop(0.65, k.skyB);
+    g.addColorStop(1, k.horizon);
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  function drawStars(W, H, k) {
+    if (k.starsAlpha < 0.01) return;
+    ctx.fillStyle = `rgba(255,255,255,${k.starsAlpha})`;
+    stars.forEach(s => {
+      ctx.beginPath();
+      ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
+      ctx.fill();
+    });
+  }
+
+  function drawSun(W, H, k) {
+    if (k.sunR < 0.002 || !k.sunC || k.sunC==='transparent') return;
+    const sx=k.sunX*W, sy=k.sunY*H, sr=k.sunR*W;
+    const g=ctx.createRadialGradient(sx,sy,0,sx,sy,sr*3);
+    g.addColorStop(0,k.sunGlow);
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(sx,sy,sr*3,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=k.sunC; ctx.beginPath(); ctx.arc(sx,sy,sr,0,Math.PI*2); ctx.fill();
+  }
+
+  function drawDayClouds(W, H, k, dt) {
+    if (k.dayCloudAlpha < 0.01) return;
+    dayClouds.forEach(c => {
+      c.x = (c.x + c.spd*dt)%1;
+      const cx=c.x*W, cy=c.y*H, cw=c.w*W, ch=c.h*H;
+      ctx.fillStyle=`rgba(255,255,255,${k.dayCloudAlpha*0.55})`;
+      ctx.beginPath(); ctx.ellipse(cx,cy,cw,ch,0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx-cw*.35,cy+ch*.2,cw*.65,ch*.7,0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx+cw*.3,cy+ch*.1,cw*.55,ch*.65,0,0,Math.PI*2); ctx.fill();
+    });
+  }
+
+  function drawStormClouds(W, H, k, dt) {
+    if (k.stormCloudAlpha < 0.01) return;
+    stormClouds.forEach(c => {
+      c.x += c.spd*dt; if(c.x>1.2) c.x=-0.2;
+      const cx=c.x*W, cy=c.y*H, cw=c.w*W, ch=c.h*H;
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,cw);
+      g.addColorStop(0,`rgba(12,8,18,${k.stormCloudAlpha*0.9})`);
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(cx,cy,cw,ch,0,0,Math.PI*2); ctx.fill();
+    });
+  }
+
+  function drawRain(W, H, k) {
+    if (k.rainAlpha < 0.01) return;
+    ctx.strokeStyle=`rgba(160,185,220,${k.rainAlpha*0.4})`;
+    ctx.lineWidth=0.6;
+    for(let i=0;i<60;i++){
+      const rx=Math.random()*W, ry=Math.random()*H;
+      ctx.beginPath(); ctx.moveTo(rx,ry); ctx.lineTo(rx-3,ry+16); ctx.stroke();
+    }
+  }
+
+  function drawLightning(W, H, k, dt) {
+    if (prog < 0.75) return;
+    lightningTimer -= dt;
+    if (lightningTimer <= 0) {
+      lightningTimer = 2000 + Math.random()*4000;
+      if (Math.random() < 0.5) {
+        lightning = 150; // ms
+        const lx = W*(0.3+Math.random()*0.5);
+        setTimeout(()=>{ lightning=0; },200);
+        // Draw bolt
+        ctx.strokeStyle=`rgba(220,230,255,${k.stormCloudAlpha*0.7})`;
+        ctx.lineWidth=1.5;
+        ctx.beginPath();
+        let bx=lx, by=0;
+        ctx.moveTo(bx,by);
+        while(by<H*0.7){ by+=30+Math.random()*40; bx+=(-40+Math.random()*80); ctx.lineTo(bx,by); }
+        ctx.stroke();
+      }
+    }
+    if (lightning > 0) {
+      ctx.fillStyle=`rgba(200,220,255,${0.04*k.stormCloudAlpha})`;
+      ctx.fillRect(0,0,W,H);
+    }
+  }
+
+  let lastT=0;
+  function frame(t) {
+    const dt = t-lastT; lastT=t;
+    const W=canvas.width, H=canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    const k = getK(prog);
+
+    drawSky(W, H, k);
+    drawStars(W, H, k);
+    drawSun(W, H, k);
+    drawDayClouds(W, H, k, dt);
+    drawStormClouds(W, H, k, dt);
+    drawRain(W, H, k);
+    drawLightning(W, H, k, dt);
+    drawRoom(W, H, k);
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // SCROLL DRIVER
+  window.addEventListener('scroll', () => {
+    const hero = document.getElementById('hero');
+    const hH = hero.offsetHeight;
+    prog = clamp(window.scrollY / (hH - window.innerHeight), 0, 1);
+
+    // Hero layers
+    const p = prog;
+    document.getElementById('hl0').classList.toggle('hidden', p > 0.2);
+    document.getElementById('hl1').classList.toggle('hidden', p < 0.22 || p > 0.5);
+    document.getElementById('hl2').classList.toggle('hidden', p < 0.52 || p > 0.82);
+    document.getElementById('hl3').classList.toggle('hidden', p < 0.84);
+    document.getElementById('scrollCue').style.opacity = p > 0.08 ? '0' : '1';
+
+    // Nav
+    const pastHero = window.scrollY > window.innerHeight*3;
+    document.getElementById('mainNav').classList.toggle('scrolled', pastHero);
+
+    // Page progress (on landing)
+    const landH = document.getElementById('landing').offsetHeight;
+    const landScroll = Math.max(0, window.scrollY - hero.offsetHeight);
+    document.getElementById('pageProgress').style.width = clamp(landScroll/landH*100, 0, 100)+'%';
+  });
+})();
+
+/* ═══════════════════════════════════════════════
+   APP STATE
+═══════════════════════════════════════════════ */
+let state = {
+  xp: 0, streak: 0, sessCount: 0, checkinCount: 0,
+  challengeCompleted: new Set(),
+  earnedBadges: new Set(),
+  habits: [
+    {name:'Morning phone-free (60 min)', days:Array(7).fill(false)},
+    {name:'No phone during meals', days:Array(7).fill(false)},
+    {name:'Phone off by 10pm', days:Array(7).fill(false)},
+    {name:'No phone in bed', days:Array(7).fill(false)},
+  ],
+  screenLog: Array(30).fill(null),
+  checkinHistory: [],
+  profile: { name:'', challenge:'', goal:2 },
+  setupDone: false,
+  currentDay: 1,
+  timerRunning: false,
+  timerSeconds: 25*60,
+  timerTotal: 25*60,
+  lockSaved: null,
+  routineBuilt: false,
+};
+
+const LEVELS = [
+  {min:0,max:100,num:1,name:'Awakening'},
+  {min:100,max:300,num:2,name:'Observer'},
+  {min:300,max:600,num:3,name:'Aware'},
+  {min:600,max:1000,num:4,name:'Focused'},
+  {min:1000,max:1500,num:5,name:'Disciplined'},
+  {min:1500,max:2200,num:6,name:'Sovereign'},
+  {min:2200,max:99999,num:7,name:'Mind Architect'},
+];
+
+function getLv() { return LEVELS.find(l=>state.xp>=l.min&&state.xp<l.max)||LEVELS[LEVELS.length-1]; }
+
+function addXP(n, tag, msg) {
+  state.xp += n;
+  updateXPUI();
+  checkBadges();
+  toast(tag, msg || `+${n} XP`);
+}
+
+function updateXPUI() {
+  const lv = getLv();
+  const pct = Math.min(100,((state.xp-lv.min)/(lv.max-lv.min))*100);
+  // Sidebar
+  ['sideXpFill'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.width=pct+'%'; });
+  document.getElementById('sideLevel').textContent = `Level ${lv.num} — ${lv.name}`;
+  const n = state.profile.name||'User';
+  document.getElementById('sideName').textContent = n;
+  document.getElementById('sideAvatar').textContent = n[0]||'S';
+  // Home
+  document.getElementById('homeAvatar').textContent = n[0]||'S';
+  document.getElementById('homeName').textContent = n||'Your Name';
+  document.getElementById('homeLevel').textContent = `Level ${lv.num} — ${lv.name}`;
+  document.getElementById('homeXp').textContent = `${state.xp} XP · ${state.streak}-day streak`;
+  document.getElementById('homeSessionCount').textContent = state.sessCount;
+  // Progress
+  document.getElementById('pXP').textContent = state.xp;
+  document.getElementById('pStreak').textContent = state.streak;
+  document.getElementById('pSess').textContent = state.sessCount;
+  document.getElementById('pLevel').textContent = lv.num;
+  document.getElementById('pLevelName').textContent = lv.name;
+  document.getElementById('pXPCur').textContent = state.xp-lv.min;
+  document.getElementById('pXPNext').textContent = lv.max-lv.min;
+  document.getElementById('pXPBar').style.width = pct+'%';
+
+  // Challenge badge
+  document.getElementById('challengeBadge').textContent = 'D'+state.currentDay;
+}
+
+/* ═══════════════════════════════════════════════
+   OPEN / CLOSE APP
+═══════════════════════════════════════════════ */
+function openApp(panel) {
+  document.getElementById('appShell').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  if (panel) switchPanel(panel);
+  updateAll();
+}
+function closeApp() {
+  document.getElementById('appShell').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+/* ═══════════════════════════════════════════════
+   PANEL SWITCHING
+═══════════════════════════════════════════════ */
+function switchPanel(id) {
+  document.querySelectorAll('.module-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  const panel = document.getElementById('panel-'+id);
+  if (panel) panel.classList.add('active');
+  const item = document.querySelector(`[data-panel="${id}"]`);
+  if (item) item.classList.add('active');
+  updateAll();
+}
+
+/* ═══════════════════════════════════════════════
+   SETUP
+═══════════════════════════════════════════════ */
+function saveSetup() {
+  const n = document.getElementById('setupName').value.trim();
+  if (!n) { toast('Required','Please enter your name.'); return; }
+  state.profile.name = n;
+  state.profile.challenge = document.getElementById('setupChallenge').value;
+  state.profile.goal = parseFloat(document.getElementById('setupGoal').value);
+  state.setupDone = true;
+  document.getElementById('setupForm').style.display='none';
+  updateXPUI();
+  addXP(50,'Profile Created','Your journey starts now.');
+}
+
+/* ═══════════════════════════════════════════════
+   TIMER
+═══════════════════════════════════════════════ */
+let timerInterval = null;
+
+function setPreset(min) {
+  if (state.timerRunning) return;
+  state.timerSeconds = min*60;
+  state.timerTotal = min*60;
+  document.getElementById('customMins').value = min;
+  updateTimerUI();
+}
+function setCustomTimer() {
+  if (state.timerRunning) return;
+  const v = parseInt(document.getElementById('customMins').value)||25;
+  state.timerSeconds = v*60;
+  state.timerTotal = v*60;
+  updateTimerUI();
+}
+function updateTimerUI() {
+  const m=Math.floor(state.timerSeconds/60), s=state.timerSeconds%60;
+  const txt=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  document.getElementById('timerSVGText').textContent = txt;
+  const pct = 1 - state.timerSeconds/state.timerTotal;
+  const circ = 2*Math.PI*68;
+  document.getElementById('timerArc').style.strokeDashoffset = circ*(1-pct);
+  document.getElementById('timerStatus').textContent = state.timerRunning ? 'RUNNING' : (pct===0?'READY':'PAUSED');
+  document.getElementById('timerBtn').textContent = state.timerRunning ? 'Pause' : (pct>0?'Resume':'Start');
+  document.getElementById('sessCountDisplay').textContent = state.sessCount;
+}
+function timerToggle() {
+  if (state.timerRunning) {
+    clearInterval(timerInterval);
+    state.timerRunning = false;
+    updateTimerUI();
+  } else {
+    state.timerRunning = true;
+    timerInterval = setInterval(()=>{
+      if (state.timerSeconds<=0) {
+        clearInterval(timerInterval);
+        state.timerRunning = false;
+        state.sessCount++;
+        state.streak++;
+        addXP(50, 'Session Complete', `+50 XP — ${Math.floor(state.timerTotal/60)}m completed`);
+        state.timerSeconds = state.timerTotal;
+        updateTimerUI();
+        updateXPUI();
+      } else {
+        state.timerSeconds--;
+        updateTimerUI();
+      }
+    },1000);
+  }
+}
+function timerReset() {
+  clearInterval(timerInterval);
+  state.timerRunning = false;
+  state.timerSeconds = state.timerTotal;
+  updateTimerUI();
+}
+
+/* ═══════════════════════════════════════════════
+   LOCK TIME
+═══════════════════════════════════════════════ */
+function saveLock() {
+  const s=document.getElementById('lockStart').value;
+  const e=document.getElementById('lockEnd').value;
+  const c=document.getElementById('lockContext').value;
+  state.lockSaved = {s,e,c};
+  const el=document.getElementById('lockConfirm');
+  el.style.display='block';
+  el.textContent=`Committed: ${s}–${e} · ${c}`;
+  addXP(20,'Digital Curfew Set',`${s}–${e} locked in.`);
+}
+
+/* ═══════════════════════════════════════════════
+   HABITS
+═══════════════════════════════════════════════ */
+const DAY_LABELS=['M','T','W','T','F','S','S'];
+
+function renderHabits() {
+  const c=document.getElementById('habitContainer');
+  if(!c) return;
+  c.innerHTML='';
+  state.habits.forEach((h,hi)=>{
+    const row=document.createElement('div');
+    row.className='habit-row';
+    const name=document.createElement('span');
+    name.className='habit-name'; name.textContent=h.name;
+    const days=document.createElement('div');
+    days.className='habit-days';
+    h.days.forEach((done,di)=>{
+      const d=document.createElement('div');
+      d.className='habit-day'+(done?' done':'');
+      d.textContent=DAY_LABELS[di];
+      d.onclick=()=>{ h.days[di]=!h.days[di]; if(h.days[di]) addXP(15,'Habit Checked',h.name); renderHabits(); updateHomeHabits(); };
+      days.appendChild(d);
+    });
+    row.appendChild(name); row.appendChild(days); c.appendChild(row);
+  });
+}
+function addHabit() {
+  const v=document.getElementById('newHabit').value.trim();
+  if(!v) return;
+  state.habits.push({name:v,days:Array(7).fill(false)});
+  document.getElementById('newHabit').value='';
+  renderHabits();
+}
+function updateHomeHabits() {
+  const total=state.habits.length*7;
+  const done=state.habits.reduce((s,h)=>s+h.days.filter(Boolean).length,0);
+  const pct=total>0?Math.round(done/total*100):0;
+  const el=document.getElementById('homeHabitSummary');
+  if(el) el.textContent=`${done}/${total} habit-days completed this week (${pct}%)`;
+  const bar=document.getElementById('homeHabitBar');
+  if(bar) bar.style.width=pct+'%';
+}
+
+/* ═══════════════════════════════════════════════
+   CHECK-IN
+═══════════════════════════════════════════════ */
+function updateSlider(id, val) {
+  const labels={energy:'energyLabel',focus:'focusLabel',urge:'urgeLabel',sleep:'sleepLabel',screen:'screenLabel'};
+  const el=document.getElementById(labels[id]);
+  if(!el) return;
+  el.textContent = id==='screen'?val+'h':val;
+}
+function submitCheckin() {
+  const entry={
+    energy:parseInt(document.getElementById('energySlider').value),
+    focus:parseInt(document.getElementById('focusSlider').value),
+    urge:parseInt(document.getElementById('urgeSlider').value),
+    sleep:parseInt(document.getElementById('sleepSlider').value),
+    screen:parseFloat(document.getElementById('screenSlider').value),
+    note:document.getElementById('checkinNote').value,
+    date:Date.now()
+  };
+  state.checkinHistory.push(entry);
+  state.checkinCount++;
+  // Log screen time
+  const idx=state.checkinCount-1;
+  if(idx<30) state.screenLog[idx]=entry.screen;
+  document.getElementById('checkinNote').value='';
+  document.getElementById('checkinBadge').style.display='none';
+  addXP(25,'Check-In Logged','Your data portrait grows.');
+  drawCheckinChart();
+  renderScreenLog();
+}
+function drawCheckinChart() {
+  const c=document.getElementById('checkinChart');
+  if(!c) return;
+  const W=c.width=c.offsetWidth, H=c.height=160;
+  const ctx2=c.getContext('2d');
+  ctx2.clearRect(0,0,W,H);
+  const data=state.checkinHistory.slice(-7);
+  if(data.length<2){
+    ctx2.fillStyle='rgba(244,239,230,0.2)'; ctx2.font='11px DM Mono';
+    ctx2.fillText('Log at least 2 days to see trend',16,80); return;
+  }
+  const pad={t:10,b:24,l:10,r:10};
+  const gW=W-pad.l-pad.r, gH=H-pad.t-pad.b;
+  const metrics=['energy','focus'];
+  const colors=['rgba(201,78,26,0.9)','rgba(200,148,40,0.9)'];
+  metrics.forEach((m,mi)=>{
+    const vals=data.map(d=>d[m]);
+    const g=c.getContext('2d').createLinearGradient(0,pad.t,0,pad.t+gH);
+    g.addColorStop(0,colors[mi].replace('0.9','0.15'));
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx2.strokeStyle=colors[mi]; ctx2.lineWidth=1.5;
+    ctx2.beginPath();
+    vals.forEach((v,i)=>{ const x=pad.l+(i/(data.length-1))*gW; const y=pad.t+gH*(1-v/10); i===0?ctx2.moveTo(x,y):ctx2.lineTo(x,y); });
+    ctx2.stroke();
+  });
+}
+function renderScreenLog() {
+  const c=document.getElementById('screenLogGrid'); if(!c) return;
+  c.innerHTML='';
+  state.screenLog.forEach(v=>{
+    const d=document.createElement('div');
+    d.style.cssText=`height:16px; background:${v===null?'rgba(244,239,230,0.05)':v<=1?'rgba(201,78,26,0.8)':v<=3?'rgba(201,78,26,0.4)':v<=6?'rgba(201,78,26,0.15)':'rgba(244,239,230,0.05)'}; border-radius:1px;`;
+    c.appendChild(d);
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   ROUTINE GENERATOR
+═══════════════════════════════════════════════ */
+function addMins(t, m) {
+  const [h,min]=t.split(':').map(Number);
+  const tot=h*60+min+m;
+  const hh=Math.floor(((tot%1440)+1440)%1440/60);
+  const mm=((tot%60)+60)%60;
+  return `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+}
+function buildRoutine() {
+  const wake=document.getElementById('rWake').value;
+  const sleep=document.getElementById('rSleep').value;
+  const work=parseInt(document.getElementById('rWork').value)||8;
+  const problem=document.getElementById('rProblem').value;
+  const replace=document.getElementById('rReplace').value;
+  const intensity=document.getElementById('rIntensity').value;
+  const target=document.getElementById('targetSlider').value;
+  const morning=parseInt(document.getElementById('rMorning').value)||60;
+  const batching=document.getElementById('rBatching').value;
+  const hard=intensity==='hard', soft=intensity==='soft';
+
+  const steps=[
+    {time:wake, title:`Wake — Alarm Only, No Phone`, desc:`Your alarm is a physical clock. Phone stays face-down. ${hard?'No exceptions':'Even 30 seconds of discipline here sets the tone for the day'}.`},
+    {time:addMins(wake,5), title:`Hydrate & Light`, desc:`Water immediately. Open a window. Natural light syncs your cortisol cycle and signals wakefulness through non-screen means.`},
+    {time:addMins(wake,15), title:`${replace}`, desc:`${hard?`Hard protocol: 30 full minutes of ${replace}. No checking.`:`${soft?'Even 10 minutes of':'15–20 minutes of'} ${replace} before anything digital. This is non-negotiable.`}`},
+    {time:addMins(wake,morning), title:`First Phone Window (${soft?15:10} min max)`, desc:`First sanctioned contact with your phone. Only: messages, calendar, news headlines. Zero social media. Timer starts now.`},
+    {time:addMins(wake,morning+20), title:`Deep Work Block 1`, desc:`${Math.min(work,2.5)}h of focused work. Phone in another room. Notifications fully off. This block is the most cognitively valuable time in your day.`},
+    {time:'12:30', title:`Lunch — No Phone`, desc:`Meals are phone-free. Eat. Taste. Be present. This is not a productivity tactic — it's a restoration practice.`},
+    {time:'13:00', title:`Second Phone Window (${soft?20:15} min)`, desc:`${batching==='3'?'Second of three':'Only'} batched check window. Reply to everything. Then close it. Not available again until ${batching==='3'?'6pm':sleep}.`},
+    {time:addMins(wake,work*60+morning+30), title:`Deep Work Block 2`, desc:`Second focus block. Honor it the same way as the first. The compounding value of consecutive phone-free hours is dramatic.`},
+    {time:'18:00', title:`${batching==='3'?'Third':'Final'} Phone Window (${soft?20:15} min)`, desc:`Last sanctioned social media and news check of the day. After this window closes, you don't need it again.`},
+    {time:addMins(sleep,-90), title:`Digital Dusk — Screens Off`, desc:`${hard?'90':'60'} minutes before sleep: all screens off. No scrolling "just for a minute." Your melatonin cycle begins now.`},
+    {time:addMins(sleep,-30), title:`Wind-Down Protocol`, desc:`${replace}, reading (physical), light stretching, or simply sitting. Let your nervous system decelerate.`},
+    {time:sleep, title:`Sleep — Phone Charging Outside`, desc:`Phone charges in another room. A real alarm wakes you tomorrow. This architecture begins again.`},
+  ];
+
+  const stepsEl=document.getElementById('routineSteps');
+  if(!stepsEl) return;
+  stepsEl.innerHTML='';
+  steps.forEach((s,i)=>{
+    const d=document.createElement('div');
+    d.className='routine-step';
+    d.innerHTML=`<div class="rs-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="rs-body">
+        <div class="rs-time-tag">${s.time}</div>
+        <div class="rs-title">${s.title}</div>
+        <div class="rs-desc">${s.desc}</div>
+      </div>`;
+    stepsEl.appendChild(d);
+  });
+
+  document.getElementById('routineTitle').textContent=`${hard?'Hardcore':soft?'Gentle':'Balanced'} Protocol — ${target}h daily target`;
+  document.getElementById('routineResult').style.display='block';
+  document.getElementById('routineResult').scrollIntoView({behavior:'smooth'});
+  addXP(30,'Routine Generated','Your daily architecture is set.');
+}
+
+/* ═══════════════════════════════════════════════
+   30-DAY CHALLENGE
+═══════════════════════════════════════════════ */
+const CHALLENGES=[
+  // Week 1 — Awareness
+  {day:1,cat:'Awareness',title:'Phone Audit',desc:'Count exactly how many times you pick up your phone today. Just count. No changes yet. Awareness precedes action.'},
+  {day:2,cat:'Awareness',title:'Trigger Mapping',desc:'Every time you reach for your phone, pause and name the emotion. Bored? Anxious? Lonely? Avoid? Write them down.'},
+  {day:3,cat:'Friction',title:'Grayscale Mode',desc:'Enable grayscale display for the entire day. Color is engineered to trigger dopamine. Remove it and observe how desire shifts.'},
+  {day:4,cat:'Friction',title:'Homescreen Purge',desc:'Delete every social app from your homescreen. They can stay in a folder, buried. Access requires deliberate intent.'},
+  {day:5,cat:'Awareness',title:'Before & After Log',desc:'Before you open any app, write down why. After you close it, write how you feel. Compare. The gap is revealing.'},
+  {day:6,cat:'Time',title:'Phone-Free Morning',desc:'No phone for the first 60 minutes after waking. No exceptions. Notice what this changes about your mental state.'},
+  {day:7,cat:'Recovery',title:'One Full Hour Outside',desc:'One hour outside without your phone. Not listening to anything. Just present. This is neurological recovery, not leisure.'},
+
+  // Week 2 — Friction Engineering
+  {day:8,cat:'Friction',title:'Log Out of Everything',desc:'Log out of all social media apps manually. The re-login friction is the intervention. Inconvenience is the point.'},
+  {day:9,cat:'Time',title:'First Focus Block',desc:'Complete one 25-minute phone-free focus session using the timer. No checking between. Grade your focus 1–10 after.'},
+  {day:10,cat:'Friction',title:'Notification Purge',desc:'Turn off every notification except calls. Every. Single. One. You decide when you check — not the app.'},
+  {day:11,cat:'Awareness',title:'Count the Algorithms',desc:'Spend 10 minutes consciously watching how a social feed works. Notice what it shows. Notice when you forget to notice.'},
+  {day:12,cat:'Time',title:'Meal Protocol',desc:'Three meals today — zero phone. Eat, taste, sit. Observe how uncomfortable this is, and why that matters.'},
+  {day:13,cat:'Recovery',title:'Read 20 Pages',desc:'Read 20 pages of a physical book. Not an audiobook, not Kindle. The mono-tasking this requires is itself the exercise.'},
+  {day:14,cat:'Time',title:'Phone-Free Day Half',desc:'No phone before 1pm. Document your state at 12pm: energy, clarity, mood. Compare to a typical morning.'},
+
+  // Week 3 — Deep Rewiring
+  {day:15,cat:'Identity',title:'Redefine Your Identity',desc:'Write: "I am someone who..." and complete it without using the word phone, social, or screen. Define who you\'re becoming.'},
+  {day:16,cat:'Recovery',title:'Social Without Digital',desc:'Have one real conversation today that you would normally have replaced with texting. Notice what\'s gained.'},
+  {day:17,cat:'Friction',title:'Physical Alarm',desc:'Buy or activate a physical alarm clock. Phone charges in another room tonight. This is permanent — not temporary.'},
+  {day:18,cat:'Time',title:'Two Focus Blocks',desc:'Complete two 25-minute phone-free sessions today. Between them: no phone for the full gap. Track your output quality.'},
+  {day:19,cat:'Awareness',title:'Dopamine Diary',desc:'Track every moment of pleasure today — which came from your phone, which came from the world. The ratio is data.'},
+  {day:20,cat:'Recovery',title:'Movement Without Music',desc:'30 minutes of movement — walk, run, or gym — without earphones or phone. You are allowed to be bored.'},
+  {day:21,cat:'Identity',title:'Design Your Ideal Day',desc:'Write out your ideal day in detail. How does your phone appear in it? As a tool or a companion? What does that tell you?'},
+
+  // Week 4 — Mastery & Integration
+  {day:22,cat:'Mastery',title:'Teach Someone',desc:'Explain phone addiction mechanics to a friend or family member. Teaching forces clarity. Clarity accelerates change.'},
+  {day:23,cat:'Time',title:'Three-Hour Block',desc:'Complete a single 3-hour phone-free block. The first hour is friction. The second is focus. The third is flow.'},
+  {day:24,cat:'Mastery',title:'Design Your Lock Rules',desc:'Write your personal phone use constitution — your rules, your conditions. Post it somewhere visible.'},
+  {day:25,cat:'Recovery',title:'Digital Sabbath Evening',desc:'From 6pm to sleep: zero screens. No TV, laptop, or phone. Observe what emerges when boredom has nowhere to go.'},
+  {day:26,cat:'Mastery',title:'Reset Protocol Practice',desc:'Intentionally open social media, scroll for 2 minutes, then close it consciously. Practice the deliberate exit.'},
+  {day:27,cat:'Identity',title:'Reflect on the Month',desc:'Write: What is different now? What thought patterns have shifted? What do you notice that you didn\'t before?'},
+  {day:28,cat:'Mastery',title:'Phone-Free Social Event',desc:'Attend or create a social gathering with a no-phones agreement. Notice the quality difference.'},
+  {day:29,cat:'Recovery',title:'Design Your Next Month',desc:'Write out your phone use rules for the next 30 days. Specific. Measurable. Honest about where you struggle.'},
+  {day:30,cat:'Mastery',title:'The Permanent Protocol',desc:'Finalize your personal digital architecture. This is no longer a challenge — it\'s your lifestyle. Name it and commit.'},
+];
+
+const PHASES=[
+  {range:[1,7],name:'Phase I — Awareness',desc:'The first week is observation, not change. You cannot modify behavior you cannot see. This phase makes the invisible visible.'},
+  {range:[8,14],name:'Phase II — Friction Engineering',desc:'Structural interventions. You\'re not fighting willpower — you\'re redesigning your environment to make the default healthy.'},
+  {range:[15,21],name:'Phase III — Deep Rewiring',desc:'Identity-level work. Habits driven by who you are becoming, not what you\'re trying to stop.'},
+  {range:[22,30],name:'Phase IV — Mastery & Integration',desc:'Consolidation. Testing what you\'ve built. Designing the permanent architecture. This is the beginning, not the end.'},
+];
+
+function renderChallenges() {
+  const container=document.getElementById('challengeList'); if(!container) return;
+  container.innerHTML='';
+  CHALLENGES.forEach(ch=>{
+    const done=state.challengeCompleted.has(ch.day);
+    const isToday=ch.day===state.currentDay;
+    const d=document.createElement('div');
+    d.className='challenge-day'+(done?' completed':'')+(isToday?' today':'');
+    d.innerHTML=`<div class="cd-num">${String(ch.day).padStart(2,'0')}</div>
+      <div class="cd-content">
+        <div class="cd-category">${ch.cat}</div>
+        <div class="cd-title">${ch.title}</div>
+        <div class="cd-desc">${ch.desc}</div>
+      </div>
+      <div class="cd-check">${done?'✓':''}</div>`;
+    d.onclick=()=>toggleChallenge(ch.day);
+    container.appendChild(d);
+  });
+  // Progress
+  const done=state.challengeCompleted.size;
+  document.getElementById('challengeCompleted').textContent=done;
+  document.getElementById('challengeBar').style.width=(done/30*100)+'%';
+  // Phase
+  const phase=PHASES.find(p=>state.currentDay>=p.range[0]&&state.currentDay<=p.range[1])||PHASES[3];
+  document.getElementById('challengePhase').textContent=phase.name;
+  document.getElementById('challengePhaseDesc').textContent=phase.desc;
+  // Today's challenge on home
+  const today=CHALLENGES.find(c=>c.day===state.currentDay);
+  if(today){
+    const el=document.getElementById('todayChallengeTitle'); if(el) el.textContent=today.title;
+    const el2=document.getElementById('todayChallengeDesc'); if(el2) el2.textContent=today.desc;
+  }
+}
+function toggleChallenge(day) {
+  if(state.challengeCompleted.has(day)){
+    state.challengeCompleted.delete(day);
+  } else {
+    state.challengeCompleted.add(day);
+    addXP(40,'Challenge Complete',`Day ${day} — ${CHALLENGES[day-1].title}`);
+    if(day===state.currentDay&&day<30) state.currentDay=day+1;
+  }
+  renderChallenges();
+  document.getElementById('challengeBadge').textContent='D'+state.currentDay;
+}
+
+/* ═══════════════════════════════════════════════
+   PLAYBOOK
+═══════════════════════════════════════════════ */
+const PLAYBOOK=[
+  {
+    num:'Chapter 01',
+    title:'You Were Engineered to Scroll.',
+    body:[
+      `The most important reframe you need before anything else: your phone addiction is not a character flaw. It is the precise, intended outcome of billions of dollars invested by some of the most sophisticated behavioral engineers in human history. Aza Raskin — the inventor of infinite scroll — publicly stated he has regretted creating the feature that now defines the experience of nearly every social platform on earth. He estimated it costs humanity 200,000 hours of human attention every minute.`,
+      `The mechanism is not subtle once you understand it. Every time you pull down to refresh, you are performing the same action as a slot machine lever pull. The reward is variable — sometimes something interesting, sometimes nothing — and variable reward schedules are the most powerful behavioral reinforcement pattern ever documented in psychology. B.F. Skinner demonstrated this in the 1950s. Silicon Valley weaponized it in the 2010s.`,
+      `Dopamine, the neurotransmitter you probably associate with pleasure, does not actually signal pleasure. It signals anticipation of possible reward. The scroll is not pleasurable — the maybe of the next post is. This is why you can scroll for an hour feeling vaguely dissatisfied while being completely unable to stop. You're chasing a reward that never arrives at a satisfying final state.`,
+    ],
+    pull:`"Your attention is not a psychological problem. It is an economic product that others sell."`,
+    strategy:{title:'Internalize This First',items:[
+      'You are not weak. You are facing an adversarial design.',
+      'Guilt and shame are not only useless here — they are counterproductive.',
+      'Willpower is insufficient as your only tool. You need systems.',
+      'The goal is not elimination. It is deliberate, conscious, chosen use.',
+    ]},
+  },
+  {
+    num:'Chapter 02',
+    title:'Friction Engineering — The Most Powerful Tool Available.',
+    body:[
+      `Behavioral science has a concept that most self-improvement content ignores: the path of least resistance is the path of behavior. Whatever action requires the least effort is the action people default to. This is not laziness — it is how the human brain conserves energy. To change default behavior, you can either increase the effort required for the undesired behavior, or decrease the effort required for the desired behavior. Usually, you do both.`,
+      `Friction engineering means deliberately inserting obstacles between your impulse and the action. Not making things impossible — making them non-automatic. The goal is to transform unconscious behavior into conscious choice. If you have to actively decide to open Instagram rather than doing it without thinking, you've already won half the battle.`,
+      `The prefrontal cortex — the part of your brain responsible for rational decision-making — needs about 0.5 to 2 seconds to engage. If you create that gap through friction, your PFC can participate in the decision. Without friction, the limbic system operates on pure impulse before rational thought can intervene.`,
+    ],
+    pull:`"The goal is not to make Instagram impossible. It is to make it non-reflexive."`,
+    strategy:{title:'Friction Interventions — Ranked by Effectiveness',items:[
+      'Physical distance: phone in another room. Highest impact, lowest effort to implement.',
+      'Grayscale mode: removes color-based dopamine triggering. Immediate, reversible.',
+      'Logging out after every use: re-login friction is sufficient for most impulsive checks.',
+      'App folder burial: homescreen access removed, requiring deliberate navigation.',
+      'Notification purge: eliminates external triggers that initiate unconscious use.',
+    ]},
+  },
+  {
+    num:'Chapter 03',
+    title:'The Morning Window — The 60 Minutes That Determine Your Day.',
+    body:[
+      `In the first 60 minutes after waking, your brain is in a neurological state unlike any other point in the day. Cortisol is rising — not as a stress signal, but as the wake-inducing hormone that calibrates your alertness and focus architecture for the day ahead. Simultaneously, the brain is transitioning from theta waves (associated with deep meditation and high receptivity) to the alpha and beta states of waking consciousness. During this transition, you are unusually susceptible to influence.`,
+      `What you input in this window doesn't just fill your morning — it sets the emotional and attentional baseline for the following 14 hours. Checking your phone as the first act of the day means: activating your stress response before your nervous system is fully online, importing others' agendas before you've established your own, and loading your working memory with social and informational data that will compete with your focus for hours.`,
+      `The research is consistent: people who protect their morning from screens report higher daily focus quality, lower subjective stress, and greater sense of agency throughout the day. This is not an incidental correlation — it is a causal relationship rooted in cortisol timing and attentional priming.`,
+    ],
+    pull:`"Your first 60 minutes are not a routine. They are a neurological investment with a 14-hour return."`,
+    strategy:{title:'Morning Protocol — The Non-Negotiable Version',items:[
+      '0–5 minutes: Water, window, no screen. Let cortisol rise on its own.',
+      '5–25 minutes: Physical movement — even 10 minutes of deliberate movement.',
+      '25–45 minutes: Chosen activity (reading, writing, planning) — analog.',
+      '45–60 minutes: Coffee or tea. Intentional. Not while checking anything.',
+      'Minute 60+: Phone, if needed. With intention, not reflex.',
+    ]},
+  },
+  {
+    num:'Chapter 04',
+    title:'Time Batching — How to Own Your Notifications.',
+    body:[
+      `A study at the University of California, Irvine measured the cognitive cost of a single interruption. The average time required to return to full focus after an interruption: 23 minutes and 15 seconds. Not from the moment you put the phone down — from the moment you were interrupted. If you receive ten notification-driven interruptions in a workday, you have lost — not the time spent checking them — but potentially over four hours of deep cognitive work.`,
+      `The solution is architectural, not motivational. You do not need more discipline to check your phone less. You need to decide, once, when you check it — and make that decision binding. This is called time batching: consolidating all communication into defined windows, and making yourself genuinely unavailable outside of them.`,
+      `The resistance to this is almost always social anxiety: "What if someone needs me immediately?" The data disagrees with this concern. Analysis of communication patterns consistently shows that the vast majority of messages — including those labeled "urgent" by the sender — do not require responses within hours, let alone minutes. The urgency is almost always perceived, not real.`,
+    ],
+    pull:`"Reactive availability is the most expensive way to spend the most finite resource you have."`,
+    strategy:{title:'Batching Implementation — Start Tomorrow',items:[
+      'Three windows maximum: 9:00, 13:00, 18:00. Fifteen to twenty minutes each.',
+      'Outside windows: phone on Do Not Disturb. Calls only.',
+      'Set an autoresponder for email and messaging if needed.',
+      'Communicate your protocol to people who matter. Most will adapt.',
+      'Begin with two days per week. Expand as you build tolerance.',
+    ]},
+  },
+  {
+    num:'Chapter 05',
+    title:'The Reset — What to Do When You Fail.',
+    body:[
+      `You will fail. This is not pessimism — it is accurate modeling. The research on behavioral change is unequivocal: relapse is part of the change process, not an interruption to it. The question that determines long-term outcome is not whether you fall back into the pattern, but how quickly you exit it when you do.`,
+      `The most destructive cognitive pattern in behavioral recovery is what psychologists call the "abstinence violation effect" — the tendency to interpret a single failure as evidence that the entire effort has collapsed. "I've already ruined today, so I might as well..." This is the mechanism that turns a five-minute slip into a five-hour binge. Recognizing this pattern by name is enough to break it for many people.`,
+      `Research on habit formation consistently finds that the single strongest predictor of long-term success is not the absence of relapses — it is the capacity to resume immediately after one. "Never miss twice" is not a motivational slogan. It is a condensed version of the behavioral science finding that two consecutive misses is the threshold at which a new default behavior begins to solidify.`,
+    ],
+    pull:`"A relapse is not a failure. It is data about your triggers and a test of your recovery speed."`,
+    strategy:{title:'The Three-Step Reset Protocol',items:[
+      'Step 1 — Observe: "I just scrolled for an hour." State it without judgment. You are recording, not condemning.',
+      'Step 2 — Diagnose: What triggered this? Boredom, anxiety, avoidance, loneliness, procrastination?',
+      'Step 3 — Act immediately: Start a focus session within five minutes of closing the app. Not tomorrow. Now.',
+    ]},
+  },
+];
+
+function renderPlaybook() {
+  const c=document.getElementById('playbookContent'); if(!c) return;
+  c.innerHTML='';
+  PLAYBOOK.forEach(ch=>{
+    const div=document.createElement('div');
+    div.className='chapter';
+    let html=`<div class="ch-num">${ch.num}</div><div class="ch-title">${ch.title}</div>`;
+    ch.body.forEach(p=>{ html+=`<div class="ch-body">${p}</div>`; });
+    html+=`<div class="pull-quote">${ch.pull}</div>`;
+    html+=`<div class="strategy-box"><h4>${ch.strategy.title}</h4><ul>`;
+    ch.strategy.items.forEach(i=>{ html+=`<li>${i}</li>`; });
+    html+=`</ul></div>`;
+    div.innerHTML=html;
+    c.appendChild(div);
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   BADGES
+═══════════════════════════════════════════════ */
+const BADGES=[
+  {id:'first_sess',icon:'◈',name:'First Session',cond:()=>state.sessCount>=1},
+  {id:'first_checkin',icon:'◇',name:'First Check-In',cond:()=>state.checkinCount>=1},
+  {id:'five_sess',icon:'◈◈',name:'5 Sessions',cond:()=>state.sessCount>=5},
+  {id:'habit_hero',icon:'▲',name:'Habit Hero',cond:()=>state.habits.some(h=>h.days.filter(Boolean).length>=4)},
+  {id:'week_logged',icon:'▪',name:'Week Logged',cond:()=>state.checkinCount>=7},
+  {id:'challenge_7',icon:'◆',name:'Week 1 Done',cond:()=>state.challengeCompleted.size>=7},
+  {id:'challenge_14',icon:'◆◆',name:'Week 2 Done',cond:()=>state.challengeCompleted.size>=14},
+  {id:'challenge_30',icon:'★',name:'30 Days',cond:()=>state.challengeCompleted.size>=30},
+  {id:'level_3',icon:'⬟',name:'Level 3',cond:()=>getLv().num>=3},
+  {id:'xp_500',icon:'◉',name:'500 XP',cond:()=>state.xp>=500},
+  {id:'session_10',icon:'◈◈◈',name:'10 Sessions',cond:()=>state.sessCount>=10},
+  {id:'routine_built',icon:'⟳',name:'System Built',cond:()=>state.routineBuilt},
+];
+
+function checkBadges() {
+  BADGES.forEach(b=>{
+    if(!state.earnedBadges.has(b.id)&&b.cond()){
+      state.earnedBadges.add(b.id);
+      setTimeout(()=>toast('Achievement Unlocked',b.name+' '+b.icon),800);
+    }
+  });
+  renderBadges();
+}
+function renderBadges() {
+  const g=document.getElementById('badgeGrid'); if(!g) return;
+  g.innerHTML='';
+  BADGES.forEach(b=>{
+    const div=document.createElement('div');
+    div.className='badge-item'+(state.earnedBadges.has(b.id)?' earned':'');
+    div.innerHTML=`<div class="badge-icon">${b.icon}</div><div class="badge-name">${b.name}</div>`;
+    g.appendChild(div);
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   PROGRESS CHART
+═══════════════════════════════════════════════ */
+function drawProgressChart() {
+  const c=document.getElementById('progressChart'); if(!c) return;
+  const W=c.width=c.offsetWidth, H=c.height=160;
+  const ctx2=c.getContext('2d');
+  ctx2.clearRect(0,0,W,H);
+  const data=state.screenLog.filter(v=>v!==null);
+  if(data.length<2){
+    ctx2.fillStyle='rgba(244,239,230,0.2)'; ctx2.font='11px DM Mono';
+    ctx2.fillText('Log daily screen time in Check-In to see chart',16,80); return;
+  }
+  const max=Math.max(...data,4);
+  const pad={t:10,b:20,l:30,r:10};
+  const gW=W-pad.l-pad.r, gH=H-pad.t-pad.b;
+  ctx2.strokeStyle='rgba(244,239,230,0.06)'; ctx2.lineWidth=1;
+  [0,2,4,6].forEach(v=>{
+    if(v>max) return;
+    const y=pad.t+gH*(1-v/max);
+    ctx2.beginPath(); ctx2.moveTo(pad.l,y); ctx2.lineTo(pad.l+gW,y); ctx2.stroke();
+    ctx2.fillStyle='rgba(244,239,230,0.2)'; ctx2.font='9px DM Mono'; ctx2.fillText(v+'h',2,y+3);
+  });
+  const gFill=ctx2.createLinearGradient(0,pad.t,0,pad.t+gH);
+  gFill.addColorStop(0,'rgba(201,78,26,0.2)'); gFill.addColorStop(1,'rgba(201,78,26,0)');
+  ctx2.fillStyle=gFill; ctx2.beginPath();
+  data.forEach((v,i)=>{ const x=pad.l+(i/(data.length-1))*gW; const y=pad.t+gH*(1-v/max); i===0?ctx2.moveTo(x,y):ctx2.lineTo(x,y); });
+  ctx2.lineTo(pad.l+gW,pad.t+gH); ctx2.lineTo(pad.l,pad.t+gH); ctx2.closePath(); ctx2.fill();
+  ctx2.strokeStyle='rgba(201,78,26,0.8)'; ctx2.lineWidth=1.5; ctx2.beginPath();
+  data.forEach((v,i)=>{ const x=pad.l+(i/(data.length-1))*gW; const y=pad.t+gH*(1-v/max); i===0?ctx2.moveTo(x,y):ctx2.lineTo(x,y); });
+  ctx2.stroke();
+}
+
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+let toastTimeout;
+function toast(tag, msg) {
+  clearTimeout(toastTimeout);
+  document.getElementById('toastTag').textContent=tag;
+  document.getElementById('toastMsg').textContent=msg;
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  toastTimeout=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+/* ═══════════════════════════════════════════════
+   UPDATE ALL
+═══════════════════════════════════════════════ */
+function updateAll() {
+  renderHabits();
+  updateHomeHabits();
+  renderChallenges();
+  renderPlaybook();
+  renderBadges();
+  drawCheckinChart();
+  renderScreenLog();
+  drawProgressChart();
+  updateTimerUI();
+  updateXPUI();
+  // Show/hide setup
+  if(state.setupDone) document.getElementById('setupForm').style.display='none';
+  // Checkin badge
+  const today=new Date().toDateString();
+  const lastCheckin=state.checkinHistory.length>0?new Date(state.checkinHistory[state.checkinHistory.length-1].date).toDateString():null;
+  document.getElementById('checkinBadge').style.display=lastCheckin!==today?'block':'none';
+  document.getElementById('homeGreeting').textContent=getGreeting();
+}
+
+function getGreeting() {
+  const h=new Date().getHours();
+  const n=state.profile.name?`, ${state.profile.name}`:'';
+  if(h<12) return `Good morning${n}. Your mind is freshest right now.`;
+  if(h<17) return `Good afternoon${n}. Stay the course.`;
+  return `Good evening${n}. Wind down deliberately.`;
+}
+
+// Init
+window.addEventListener('load',()=>{
+  updateAll();
+  setTimeout(()=>{ document.getElementById('checkinBadge').style.display='block'; },500);
+});
+window.addEventListener('resize',()=>{ drawProgressChart(); drawCheckinChart(); });
+</script>
+</body>
+</html>
