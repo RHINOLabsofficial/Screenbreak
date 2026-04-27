@@ -1,0 +1,2083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lumina — Reclaim Your Mind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   DESIGN TOKENS — Finance Path OS Aesthetic
+═══════════════════════════════════════ */
+:root {
+  /* Core palette */
+  --cream: #f5f0e8;
+  --cream-d: #ede7db;
+  --cream-dd: #e0d9cc;
+  --parchment: #faf8f3;
+  --gold: #b8860b;
+  --gold-l: #d4a017;
+  --gold-xl: #f5e9c8;
+  --gold-sm: rgba(184,134,11,0.12);
+  --ink: #1a1a18;
+  --ink-2: #3d3d38;
+  --ink-3: #6b6b62;
+  --ink-4: #9a9a8f;
+  --sage: #5a7a6a;
+  --sage-l: #7a9a88;
+  --sage-xl: #e8f0ec;
+  --teal: #2d6a5a;
+  --warm-red: #c0452a;
+  --warm-red-xl: #fdf0ec;
+  --border: rgba(26,26,24,0.08);
+  --border-m: rgba(26,26,24,0.14);
+  --shadow-sm: 0 2px 12px rgba(26,26,24,0.06);
+  --shadow-md: 0 6px 28px rgba(26,26,24,0.09);
+  --shadow-lg: 0 16px 60px rgba(26,26,24,0.12);
+  --r-sm: 12px;
+  --r-md: 18px;
+  --r-lg: 24px;
+  --sidebar: 288px;
+}
+
+/* ═══════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--gold-xl); color: var(--gold); }
+
+/* ═══════════════════════════════════════
+   HERO — FULL VIEWPORT SUNSET CANVAS
+═══════════════════════════════════════ */
+#hero { position: relative; height: 450vh; }
+#hero-sticky {
+  position: sticky; top: 0; height: 100vh;
+  overflow: hidden; display: flex;
+  align-items: center; justify-content: center;
+}
+#skyCanvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; z-index: 0;
+}
+
+/* Text scrolls over fixed sky */
+#textScroll {
+  position: absolute; inset: 0; z-index: 5;
+  pointer-events: none;
+}
+.hslide {
+  height: 100vh; width: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 2rem;
+  pointer-events: none;
+}
+.he { /* eyebrow */
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem; letter-spacing: .45em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.6);
+  margin-bottom: 1.1rem;
+  text-shadow: 0 1px 8px rgba(0,0,0,.2);
+}
+.ht { /* title */
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(4rem, 12vw, 9.5rem);
+  font-weight: 600; line-height: .9;
+  color: #fff;
+  text-shadow: 0 4px 40px rgba(0,0,0,.22);
+  margin-bottom: 1.2rem;
+}
+.ht em { font-style: italic; font-weight: 400; }
+.hs { /* subtitle */
+  font-size: 1.05rem; font-weight: 300;
+  color: rgba(255,255,255,.82);
+  max-width: 500px; line-height: 1.8;
+  text-shadow: 0 1px 6px rgba(0,0,0,.18);
+}
+.hcta {
+  display: inline-block; margin-top: 2.2rem;
+  background: rgba(255,255,255,.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.35);
+  color: #fff; padding: .95rem 2.4rem;
+  border-radius: 100px;
+  font-size: .82rem; font-weight: 500;
+  cursor: pointer; transition: all .22s;
+  pointer-events: all;
+}
+.hcta:hover {
+  background: rgba(255,255,255,.25);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+}
+.scroll-hint {
+  position: absolute; bottom: 2.5rem;
+  left: 50%; transform: translateX(-50%);
+  z-index: 10; display: flex;
+  flex-direction: column; align-items: center; gap: .5rem;
+  pointer-events: none; transition: opacity .4s;
+}
+.scroll-hint span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .56rem; letter-spacing: .3em;
+  color: rgba(255,255,255,.45);
+}
+.scroll-pip {
+  width: 3px; height: 30px;
+  background: linear-gradient(to bottom, rgba(255,255,255,.6), transparent);
+  border-radius: 2px;
+  animation: pip 2s ease-in-out infinite;
+}
+@keyframes pip { 0%,100%{opacity:.3;transform:scaleY(.6)} 50%{opacity:1;transform:scaleY(1)} }
+
+/* ═══════════════════════════════════════
+   NAV
+═══════════════════════════════════════ */
+#nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 300; display: flex;
+  align-items: center; justify-content: space-between;
+  padding: 1.3rem 2.5rem;
+  transition: all .4s;
+}
+#nav.solid {
+  background: rgba(245,240,232,.96);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+.nlogo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem; font-weight: 600;
+  color: #fff; transition: color .4s;
+  letter-spacing: -.01em;
+}
+#nav.solid .nlogo { color: var(--ink); }
+.nright { display: flex; align-items: center; gap: 2rem; }
+.nlink {
+  font-size: .82rem; font-weight: 500;
+  color: rgba(255,255,255,.65);
+  text-decoration: none; cursor: pointer;
+  transition: color .2s;
+}
+#nav.solid .nlink { color: var(--ink-3); }
+.nlink:hover, #nav.solid .nlink:hover { color: var(--gold); }
+.ncta {
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.4);
+  color: #fff; padding: .6rem 1.4rem;
+  border-radius: 100px; font-size: .82rem;
+  font-weight: 500; cursor: pointer;
+  transition: all .2s;
+}
+#nav.solid .ncta { background: var(--gold); border-color: var(--gold); color: #fff; }
+.ncta:hover { background: rgba(255,255,255,.28); transform: translateY(-1px); }
+#nav.solid .ncta:hover { background: var(--gold-l); }
+
+/* Page progress bar */
+#pgprog {
+  position: fixed; top: 0; left: 0; height: 2px;
+  z-index: 301; width: 0%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-l));
+  transition: width .1s; border-radius: 0 1px 1px 0;
+}
+
+/* ═══════════════════════════════════════
+   LANDING — Finance Path OS style
+═══════════════════════════════════════ */
+#landing { background: var(--parchment); position: relative; z-index: 10; }
+.ls { padding: 8rem 2.5rem; max-width: 1180px; margin: 0 auto; }
+
+.label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem; letter-spacing: .42em;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 1.1rem;
+}
+.heading {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 4.5vw, 3.8rem);
+  font-weight: 600; line-height: 1.08;
+  color: var(--ink); margin-bottom: 1.25rem;
+}
+.heading em { font-style: italic; font-weight: 400; color: var(--gold); }
+.body-text {
+  font-size: .98rem; font-weight: 300;
+  line-height: 1.88; color: var(--ink-3);
+  max-width: 560px;
+}
+
+/* Feature cards */
+.fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 4rem; }
+.fcell {
+  background: var(--cream);
+  border-radius: var(--r-lg);
+  padding: 2.2rem;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: all .25s;
+}
+.fcell:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.fcell-num { font-family: 'JetBrains Mono', monospace; font-size: .58rem; letter-spacing: .3em; color: var(--gold); margin-bottom: .8rem; }
+.fcell h3 { font-family: 'Playfair Display', serif; font-size: 1.45rem; font-weight: 600; margin-bottom: .6rem; color: var(--ink); }
+.fcell p { font-size: .88rem; font-weight: 300; line-height: 1.72; color: var(--ink-3); }
+
+/* Module rows */
+.mlist { margin-top: 3.5rem; display: flex; flex-direction: column; gap: .75rem; }
+.mrow {
+  display: flex; align-items: center; gap: 2rem;
+  padding: 1.5rem 1.75rem;
+  background: var(--cream); border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer; transition: all .2s;
+}
+.mrow:hover { border-color: var(--gold); transform: translateX(5px); box-shadow: var(--shadow-md); }
+.mrow-num { font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: var(--gold); min-width: 2rem; }
+.mrow-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: .5rem;
+  letter-spacing: .12em; padding: .18rem .55rem;
+  background: var(--gold); color: #fff;
+  border-radius: 100px; margin-bottom: .3rem;
+  display: inline-block;
+}
+.mrow h3 { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; color: var(--ink); margin-bottom: .2rem; }
+.mrow p { font-size: .84rem; font-weight: 300; color: var(--ink-3); line-height: 1.6; }
+.mrow-arrow { margin-left: auto; color: var(--cream-dd); font-size: 1.1rem; flex-shrink: 0; transition: all .2s; }
+.mrow:hover .mrow-arrow { color: var(--gold); transform: translateX(4px); }
+
+/* CTA band */
+.cta-band {
+  background: var(--ink); padding: 8rem 2.5rem;
+  text-align: center; position: relative; overflow: hidden;
+}
+.cta-band::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 50% 60% at 50% 50%, rgba(184,134,11,.12) 0%, transparent 70%);
+}
+.cta-band .heading { color: #fff; max-width: 520px; margin: 0 auto 1rem; }
+.cta-band .heading em { color: var(--gold); }
+.cta-band .body-text { color: rgba(255,255,255,.55); margin: 0 auto 2.8rem; text-align: center; }
+.btn-main {
+  display: inline-block; background: var(--gold);
+  color: #fff; border: none;
+  padding: 1.05rem 2.8rem; border-radius: 100px;
+  font-size: .9rem; font-weight: 600;
+  cursor: pointer; transition: all .22s;
+  box-shadow: 0 4px 20px rgba(184,134,11,.35);
+}
+.btn-main:hover { background: var(--gold-l); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(184,134,11,.45); }
+
+/* ═══════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════ */
+#shell {
+  position: fixed; inset: 0; z-index: 500;
+  display: none; background: var(--cream);
+}
+#shell.on { display: flex; }
+
+/* ─── SIDEBAR ─── */
+#sidebar {
+  width: var(--sidebar); min-width: var(--sidebar);
+  background: var(--ink);
+  display: flex; flex-direction: column;
+  height: 100%; overflow-y: auto;
+  box-shadow: 4px 0 30px rgba(0,0,0,.15);
+}
+.sb-top {
+  padding: 1.5rem 1.25rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sb-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem; font-weight: 600;
+  color: #fff; letter-spacing: -.01em;
+}
+.sb-close {
+  background: none; border: none; cursor: pointer;
+  color: rgba(255,255,255,.35); font-size: 1.1rem;
+  transition: color .2s; line-height: 1;
+  padding: .25rem;
+}
+.sb-close:hover { color: #fff; }
+
+.sb-profile { padding: 1.25rem; border-bottom: 1px solid rgba(255,255,255,.08); }
+.sb-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(184,134,11,.2);
+  border: 2px solid rgba(184,134,11,.5);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; color: var(--gold-l);
+  margin-bottom: .7rem;
+}
+.sb-uname { font-size: .9rem; font-weight: 500; color: #fff; margin-bottom: .15rem; }
+.sb-ulevel { font-family: 'JetBrains Mono', monospace; font-size: .58rem; letter-spacing: .15em; color: rgba(255,255,255,.4); }
+.sb-xp-bar { margin-top: .7rem; height: 3px; background: rgba(255,255,255,.1); border-radius: 2px; overflow: hidden; }
+.sb-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-l));
+  border-radius: 2px; transition: width .6s ease;
+}
+
+.sb-nav { padding: .8rem 0; flex: 1; }
+.sb-section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .55rem; letter-spacing: .3em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.25);
+  padding: .7rem 1.3rem .3rem;
+}
+.sbi {
+  display: flex; align-items: center; gap: .85rem;
+  padding: .7rem 1.3rem; cursor: pointer;
+  transition: all .15s;
+  border-left: 2.5px solid transparent;
+  position: relative;
+}
+.sbi:hover { background: rgba(255,255,255,.06); }
+.sbi.on {
+  background: rgba(184,134,11,.15);
+  border-left-color: var(--gold);
+}
+.sbi.on .sbi-label { color: #fff; font-weight: 500; }
+.sbi-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: rgba(255,255,255,.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .85rem; flex-shrink: 0; transition: background .15s;
+}
+.sbi.on .sbi-icon { background: rgba(184,134,11,.25); }
+.sbi-label { font-size: .82rem; color: rgba(255,255,255,.6); }
+.sbi-badge {
+  margin-left: auto; font-family: 'JetBrains Mono', monospace;
+  font-size: .52rem; background: var(--gold);
+  color: #fff; padding: .12rem .42rem; border-radius: 100px;
+}
+.sbi-new {
+  margin-left: auto; font-family: 'JetBrains Mono', monospace;
+  font-size: .5rem; color: var(--gold-l);
+  background: rgba(184,134,11,.18);
+  border: 1px solid rgba(184,134,11,.3);
+  padding: .1rem .38rem; border-radius: 100px;
+}
+
+/* ─── CONTENT ─── */
+#main { flex: 1; overflow-y: auto; height: 100%; background: var(--cream); }
+
+.panel { display: none; min-height: 100%; animation: panelIn .32s ease; }
+.panel.on { display: block; }
+@keyframes panelIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+/* Panel header */
+.ph {
+  background: linear-gradient(135deg, var(--parchment), var(--cream-d));
+  padding: 2.5rem 2.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.ph::after {
+  content: '';
+  position: absolute; top: -30px; right: -30px;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(184,134,11,.08), transparent);
+}
+.ph-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem; letter-spacing: .38em;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: .55rem;
+}
+.ph-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 600; color: var(--ink); line-height: 1.1;
+}
+.ph-desc {
+  margin-top: .65rem; font-size: .88rem;
+  font-weight: 300; line-height: 1.78;
+  color: var(--ink-3); max-width: 540px;
+}
+
+/* Panel body */
+.pb { padding: 2rem 2.5rem; }
+
+/* ─── CARDS ─── */
+.card {
+  background: #fff; border-radius: var(--r-lg);
+  padding: 1.75rem; border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm); margin-bottom: 1.25rem;
+  transition: box-shadow .2s;
+}
+.card:hover { box-shadow: var(--shadow-md); }
+.card-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem; letter-spacing: .28em;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: .65rem;
+}
+.card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem; font-weight: 600;
+  color: var(--ink); margin-bottom: .5rem;
+}
+.card p { font-size: .86rem; font-weight: 300; line-height: 1.72; color: var(--ink-3); margin-bottom: 1rem; }
+
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+.g3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; margin-bottom: 1.25rem; }
+
+/* Stat box */
+.stat {
+  background: #fff; border-radius: var(--r-md);
+  padding: 1.4rem; text-align: center;
+  border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+}
+.stat-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.6rem; font-weight: 700; color: var(--gold);
+  line-height: 1;
+}
+.stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem; letter-spacing: .15em;
+  color: var(--ink-4); margin-top: .35rem;
+}
+
+/* ─── FORM ELEMENTS ─── */
+label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .58rem; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--ink-4);
+  margin-bottom: .4rem;
+}
+input[type=text], input[type=number], input[type=time],
+input[type=date], select, textarea {
+  width: 100%; background: var(--parchment);
+  border: 1.5px solid var(--border-m);
+  color: var(--ink); font-family: 'Inter', sans-serif;
+  font-size: .9rem; font-weight: 400;
+  padding: .72rem 1rem; border-radius: var(--r-sm);
+  outline: none; transition: all .2s;
+  margin-bottom: .9rem; -webkit-appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,134,11,.12);
+  background: #fff;
+}
+select option { background: #fff; }
+input[type=range] {
+  -webkit-appearance: none; width: 100%;
+  height: 4px; background: var(--cream-dd);
+  border-radius: 2px; outline: none; margin: .5rem 0;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px;
+  background: var(--gold); border-radius: 50%;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(184,134,11,.35);
+}
+
+/* ─── BUTTONS ─── */
+.btn {
+  font-family: 'Inter', sans-serif; font-size: .84rem;
+  font-weight: 500; border: 1.5px solid var(--border-m);
+  background: #fff; color: var(--ink-2);
+  padding: .65rem 1.3rem; border-radius: 100px;
+  cursor: pointer; transition: all .2s;
+  display: inline-flex; align-items: center; gap: .5rem;
+}
+.btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-xl); transform: translateY(-1px); }
+.btn.primary { background: var(--gold); border-color: var(--gold); color: #fff; box-shadow: 0 3px 14px rgba(184,134,11,.3); }
+.btn.primary:hover { background: var(--gold-l); transform: translateY(-2px); box-shadow: 0 6px 22px rgba(184,134,11,.4); }
+.btn.dark { background: var(--ink); border-color: var(--ink); color: #fff; }
+.btn.dark:hover { background: var(--ink-2); }
+.btn.ghost { background: transparent; border-color: rgba(255,255,255,.35); color: #fff; }
+.btn.ghost:hover { background: rgba(255,255,255,.12); }
+.btn.full { width: 100%; justify-content: center; }
+.btn.sm { padding: .45rem .95rem; font-size: .78rem; }
+
+/* Progress bar */
+.prog-track { background: var(--cream-dd); height: 5px; border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-l)); border-radius: 3px; transition: width .5s ease; }
+.prog-labels { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: .58rem; color: var(--ink-4); margin-top: .3rem; }
+
+/* Slider row */
+.srow { margin-bottom: 1.2rem; }
+.srow-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .35rem; }
+.srow-label { font-size: .86rem; font-weight: 500; color: var(--ink-2); }
+.srow-val { font-family: 'JetBrains Mono', monospace; font-size: .78rem; color: var(--gold); background: var(--gold-xl); padding: .2rem .65rem; border-radius: 100px; }
+
+/* Habit rows */
+.habit-row { display: flex; align-items: center; justify-content: space-between; padding: .85rem 0; border-bottom: 1px solid var(--border); }
+.habit-row:last-child { border-bottom: none; }
+.habit-name { font-size: .88rem; font-weight: 500; color: var(--ink-2); }
+.habit-days { display: flex; gap: .32rem; }
+.habit-day {
+  width: 28px; height: 28px; border-radius: 8px;
+  border: 1.5px solid var(--border-m); background: var(--parchment);
+  cursor: pointer; font-family: 'JetBrains Mono', monospace;
+  font-size: .55rem; color: var(--ink-4);
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s;
+}
+.habit-day.done { background: var(--gold); border-color: var(--gold); color: #fff; box-shadow: 0 2px 8px rgba(184,134,11,.3); }
+
+/* Badge grid */
+.badge-grid { display: flex; flex-wrap: wrap; gap: .85rem; margin-top: 1.25rem; }
+.badge-item { width: 74px; text-align: center; opacity: .2; transition: opacity .4s; }
+.badge-item.earned { opacity: 1; }
+.badge-icon {
+  width: 54px; height: 54px; margin: 0 auto .45rem;
+  border-radius: 14px; display: flex; align-items: center;
+  justify-content: center; font-size: 1.35rem;
+  background: var(--cream-d); border: 1.5px solid var(--border);
+  transition: all .3s;
+}
+.badge-item.earned .badge-icon { background: var(--gold-xl); border-color: var(--gold); box-shadow: 0 4px 16px rgba(184,134,11,.2); }
+.badge-name { font-size: .6rem; font-family: 'JetBrains Mono', monospace; color: var(--ink-4); }
+
+/* ─── PERMISSION GATE ─── */
+.gate-card {
+  background: linear-gradient(135deg, var(--gold-xl), var(--cream));
+  border: 1.5px solid rgba(184,134,11,.25);
+  border-radius: var(--r-lg); padding: 2rem;
+  margin-bottom: 1.25rem;
+}
+.gate-card h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink); margin-bottom: .5rem; }
+.gate-card p { font-size: .88rem; font-weight: 300; color: var(--ink-3); line-height: 1.72; margin-bottom: 1.5rem; }
+.task-item {
+  display: flex; align-items: flex-start; gap: 1rem;
+  padding: .95rem 1.1rem; border-radius: var(--r-sm);
+  background: #fff; border: 1.5px solid var(--border);
+  margin-bottom: .6rem; cursor: pointer; transition: all .2s;
+}
+.task-item:hover { border-color: var(--gold); transform: translateX(3px); }
+.task-item.done { background: var(--gold-xl); border-color: rgba(184,134,11,.35); }
+.task-item.done .task-name { text-decoration: line-through; color: var(--ink-4); }
+.task-check {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--border-m); background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem; flex-shrink: 0; transition: all .2s;
+}
+.task-item.done .task-check { background: var(--gold); border-color: var(--gold); color: #fff; }
+.task-name { font-size: .9rem; font-weight: 500; color: var(--ink); }
+.task-cat { font-size: .75rem; color: var(--ink-4); margin-top: .12rem; }
+.gate-unlock-box {
+  background: var(--gold); border-radius: var(--r-md);
+  padding: 1.75rem 2rem; text-align: center;
+  display: none; margin-top: 1.25rem;
+  animation: gateOpen .45s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes gateOpen { from{transform:scale(.94);opacity:0} to{transform:scale(1);opacity:1} }
+.gate-unlock-box.on { display: block; }
+.gate-unlock-label { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .3em; color: rgba(255,255,255,.7); margin-bottom: .5rem; }
+.gate-unlock-time { font-family: 'JetBrains Mono', monospace; font-size: 2.8rem; font-weight: 500; color: #fff; margin: .5rem 0; }
+.gate-unlock-box p { font-size: .9rem; color: rgba(255,255,255,.9); margin-bottom: 1rem; }
+
+/* ─── URGE SURFING ─── */
+.urge-room {
+  background: linear-gradient(135deg, #e8f4ee, #f0ede4);
+  border-radius: var(--r-lg); padding: 2.5rem 2rem;
+  text-align: center; margin-bottom: 1.25rem;
+  border: 1px solid rgba(90,122,106,.18);
+}
+.urge-symbol {
+  font-size: 4.5rem; line-height: 1; margin-bottom: 1rem;
+  animation: breatheIn 4s ease-in-out infinite; display: block;
+}
+@keyframes breatheIn { 0%,100%{transform:scale(1)} 50%{transform:scale(1.07)} }
+.urge-message { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-style: italic; color: var(--teal); min-height: 2.5rem; margin-bottom: 1.25rem; line-height: 1.5; }
+.urge-prog { max-width: 280px; margin: 0 auto .75rem; }
+
+/* ─── DOPAMINE BUDGET ─── */
+.token-grid { display: grid; grid-template-columns: repeat(10,1fr); gap: .45rem; margin: 1rem 0; }
+.token {
+  aspect-ratio: 1; border-radius: 10px;
+  border: 1.5px solid var(--border-m);
+  background: var(--parchment); cursor: pointer;
+  transition: all .22s; display: flex; align-items: center; justify-content: center;
+}
+.token:hover:not(.spent):not(.locked) { border-color: var(--gold); background: var(--gold-xl); transform: scale(1.08); }
+.token.spent { background: var(--gold); border-color: var(--gold); box-shadow: 0 2px 8px rgba(184,134,11,.3); }
+.token.locked { opacity: .28; cursor: not-allowed; }
+.budget-row { padding: .9rem 0; border-bottom: 1px solid var(--border); }
+.budget-row:last-child { border-bottom: none; }
+.budget-row-head { display: flex; justify-content: space-between; margin-bottom: .4rem; }
+.budget-row-name { font-size: .86rem; font-weight: 500; color: var(--ink-2); }
+.budget-row-count { font-family: 'JetBrains Mono', monospace; font-size: .65rem; color: var(--ink-4); }
+
+/* ─── REPLACEMENT MENU ─── */
+.rm-filters { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.rm-filter {
+  font-family: 'JetBrains Mono', monospace; font-size: .62rem;
+  letter-spacing: .1em; padding: .45rem 1.1rem;
+  border: 1.5px solid var(--border-m); background: #fff;
+  border-radius: 100px; cursor: pointer; transition: all .2s; color: var(--ink-3);
+}
+.rm-filter.on { background: var(--gold); border-color: var(--gold); color: #fff; box-shadow: 0 3px 12px rgba(184,134,11,.3); }
+.rm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.rm-card {
+  padding: 1.25rem; border-radius: var(--r-md);
+  background: #fff; border: 1.5px solid var(--border);
+  cursor: pointer; transition: all .22s;
+}
+.rm-card:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.rm-time { font-family: 'JetBrains Mono', monospace; font-size: .58rem; letter-spacing: .2em; color: var(--gold); margin-bottom: .4rem; }
+.rm-card h4 { font-size: .92rem; font-weight: 600; color: var(--ink); margin-bottom: .25rem; }
+.rm-card p { font-size: .8rem; font-weight: 300; color: var(--ink-3); line-height: 1.6; margin-bottom: 0; }
+
+/* ─── WOOP ─── */
+.woop-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+.woop-cell { padding: 1.25rem; border-radius: var(--r-sm); text-align: center; background: #fff; border: 1.5px solid var(--border); }
+.woop-letter { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: .35rem; }
+.woop-word { font-size: .78rem; font-weight: 600; color: var(--ink); margin-bottom: .3rem; }
+.woop-desc { font-size: .72rem; font-weight: 300; color: var(--ink-3); line-height: 1.6; }
+
+/* ─── BUSHIDO ─── */
+.bushido-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+.bushido-cell {
+  padding: 1.25rem; border-radius: var(--r-md);
+  background: var(--ink); color: #fff; cursor: pointer; transition: all .2s;
+  border: 2px solid transparent;
+}
+.bushido-cell:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
+.bushido-cell.active { border-color: var(--gold); }
+.bushido-jp { font-family: 'JetBrains Mono', monospace; font-size: .62rem; letter-spacing: .15em; color: rgba(255,255,255,.4); margin-bottom: .25rem; }
+.bushido-en { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: .35rem; }
+.bushido-desc { font-size: .8rem; font-weight: 300; color: rgba(255,255,255,.62); line-height: 1.6; }
+
+/* ─── COLD TURKEY ─── */
+.turkey-card {
+  background: linear-gradient(135deg, #12100e, #1a1714);
+  border-radius: var(--r-lg); padding: 3rem 2rem;
+  text-align: center; margin-bottom: 1.25rem;
+  border: 1px solid rgba(255,255,255,.06);
+}
+.turkey-timer { font-family: 'JetBrains Mono', monospace; font-size: 3.5rem; color: #fff; letter-spacing: .05em; margin: 1rem 0; }
+.turkey-status { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .3em; color: rgba(255,255,255,.35); margin-bottom: .5rem; }
+.turkey-msg { font-size: .9rem; color: rgba(255,255,255,.55); font-weight: 300; max-width: 340px; margin: 0 auto 1.5rem; line-height: 1.65; }
+
+/* ─── ROUTINE ─── */
+.routine-step {
+  display: flex; gap: 1rem; padding: 1rem;
+  border-radius: var(--r-sm); background: #fff;
+  border: 1px solid var(--border); margin-bottom: .65rem;
+}
+.rs-num { font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: var(--gold); min-width: 2rem; padding-top: .2rem; }
+.rs-time { font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: var(--ink-4); margin-bottom: .2rem; }
+.rs-title { font-size: .9rem; font-weight: 600; color: var(--ink); margin-bottom: .2rem; }
+.rs-desc { font-size: .8rem; font-weight: 300; color: var(--ink-3); line-height: 1.65; }
+
+/* ─── CHALLENGE ─── */
+.chal-day {
+  display: flex; align-items: flex-start; gap: .85rem;
+  padding: 1rem; border-radius: var(--r-sm);
+  background: #fff; border: 1.5px solid var(--border);
+  margin-bottom: .6rem; cursor: pointer; transition: all .2s;
+}
+.chal-day:hover { border-color: var(--gold); transform: translateX(3px); }
+.chal-day.done { background: var(--gold-xl); border-color: rgba(184,134,11,.3); }
+.chal-day.today { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(184,134,11,.12); }
+.chal-num { font-family: 'JetBrains Mono', monospace; font-size: .65rem; color: var(--gold); min-width: 2rem; padding-top: .1rem; }
+.chal-cat { font-family: 'JetBrains Mono', monospace; font-size: .52rem; letter-spacing: .18em; color: var(--ink-4); margin-bottom: .18rem; }
+.chal-title { font-size: .9rem; font-weight: 600; color: var(--ink); margin-bottom: .2rem; }
+.chal-desc { font-size: .8rem; font-weight: 300; color: var(--ink-3); line-height: 1.6; }
+.chal-check {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--border-m); background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .7rem; flex-shrink: 0; transition: all .2s;
+}
+.chal-day.done .chal-check { background: var(--gold); border-color: var(--gold); color: #fff; }
+
+/* ─── INTERACTIVE PLAYBOOK ─── */
+.pb-tabs { display: flex; gap: .55rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.pb-tab {
+  padding: .55rem 1.2rem; border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace; font-size: .62rem;
+  border: 1.5px solid var(--border-m); background: #fff;
+  cursor: pointer; transition: all .2s; color: var(--ink-3);
+}
+.pb-tab.on { background: var(--gold); border-color: var(--gold); color: #fff; }
+.pb-tab.done { border-color: var(--gold); color: var(--gold); background: var(--gold-xl); }
+.pb-chapter {
+  background: #fff; border-radius: var(--r-lg);
+  padding: 2.5rem; border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm); margin-bottom: 1.25rem;
+}
+.pb-ch-num { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .3em; color: var(--gold); margin-bottom: .5rem; }
+.pb-ch-title { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 600; color: var(--ink); margin-bottom: 1.5rem; line-height: 1.2; }
+.pb-body { font-size: .92rem; font-weight: 300; line-height: 1.92; color: var(--ink-3); margin-bottom: 1rem; }
+.pb-pull {
+  border-left: 3px solid var(--gold); margin: 1.75rem 0;
+  padding: .75rem 1.5rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; font-style: italic;
+  color: var(--ink); background: var(--gold-xl);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  line-height: 1.6;
+}
+.pb-strat {
+  background: var(--parchment); border-radius: var(--r-sm);
+  padding: 1.25rem 1.5rem; margin: 1.25rem 0;
+  border: 1px solid var(--border);
+}
+.pb-strat h4 { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .25em; text-transform: uppercase; color: var(--gold); margin-bottom: .75rem; }
+.pb-strat li { font-size: .86rem; font-weight: 300; line-height: 1.78; padding: .2rem 0 .2rem 1.1rem; position: relative; color: var(--ink-3); list-style: none; }
+.pb-strat li::before { content: '›'; position: absolute; left: 0; color: var(--gold); font-weight: 700; }
+/* Quiz */
+.quiz-block { background: var(--parchment); border-radius: var(--r-md); padding: 1.5rem; margin-top: 1.5rem; border: 1.5px solid rgba(184,134,11,.2); }
+.quiz-label { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .25em; color: var(--gold); margin-bottom: .85rem; }
+.quiz-question { font-size: .94rem; font-weight: 600; color: var(--ink); margin-bottom: 1rem; line-height: 1.5; }
+.quiz-opts { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .75rem; }
+.quiz-opt {
+  padding: .8rem 1.1rem; border-radius: var(--r-sm);
+  border: 1.5px solid var(--border-m); background: #fff;
+  cursor: pointer; text-align: left; font-family: 'Inter', sans-serif;
+  font-size: .88rem; color: var(--ink); transition: all .2s;
+}
+.quiz-opt:hover { border-color: var(--gold); background: var(--gold-xl); }
+.quiz-opt.correct { background: #e8f5ee; border-color: #5a9a72; color: #2a6040; }
+.quiz-opt.wrong { background: var(--warm-red-xl); border-color: rgba(192,69,42,.4); color: var(--warm-red); }
+.quiz-feedback { font-size: .84rem; font-weight: 300; color: var(--ink-3); line-height: 1.65; padding: .5rem; }
+/* Insight */
+.insight-block { background: var(--cream); border-radius: var(--r-sm); padding: 1.25rem; margin-top: 1.25rem; border: 1px solid var(--border); }
+.insight-label { font-family: 'JetBrains Mono', monospace; font-size: .6rem; letter-spacing: .22em; color: var(--ink-4); margin-bottom: .65rem; }
+.insight-entry { padding: .65rem 0; border-bottom: 1px solid var(--border); font-size: .82rem; font-weight: 300; color: var(--ink-3); line-height: 1.65; }
+.insight-ch { font-family: 'JetBrains Mono', monospace; font-size: .55rem; letter-spacing: .12em; color: var(--gold); margin-bottom: .18rem; }
+
+/* ─── MIND MIRROR ─── */
+.mirror-card {
+  background: #fff; border-radius: var(--r-md);
+  padding: 1.5rem; border: 1px solid var(--border);
+  border-left: 4px solid var(--gold); margin-bottom: 1rem;
+}
+.mirror-type { font-family: 'JetBrains Mono', monospace; font-size: .58rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); margin-bottom: .5rem; }
+.mirror-text { font-size: .9rem; font-weight: 300; line-height: 1.8; color: var(--ink-3); }
+.mirror-empty { text-align: center; padding: 3rem; font-family: 'Playfair Display', serif; font-size: 1.15rem; font-style: italic; color: var(--ink-4); }
+
+/* ─── WEEKLY DEBRIEF ─── */
+.wd-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: .4rem; align-items: flex-end; margin-top: 1rem; }
+.wd-day { text-align: center; }
+.wd-lbl { font-family: 'JetBrains Mono', monospace; font-size: .52rem; color: var(--ink-4); margin-bottom: .25rem; }
+.wd-bar-wrap { display: flex; justify-content: center; align-items: flex-end; height: 50px; }
+.wd-bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 4px; transition: height .4s ease; }
+.wd-score { font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: var(--ink-4); margin-top: .25rem; }
+
+/* ─── 10-SEC RULE OVERLAY ─── */
+#overlay10 {
+  position: fixed; inset: 0; z-index: 700;
+  background: rgba(26,26,24,.88); backdrop-filter: blur(10px);
+  display: none; align-items: center; justify-content: center;
+}
+#overlay10.on { display: flex; }
+.overlay10-box {
+  background: #fff; border-radius: 24px;
+  padding: 3rem 2.5rem; max-width: 420px; width: 90%;
+  text-align: center; box-shadow: var(--shadow-lg);
+  animation: popUp .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes popUp { from{transform:scale(.82);opacity:0} to{transform:scale(1);opacity:1} }
+.o10-icon { font-size: 3rem; margin-bottom: 1.25rem; animation: breatheIn 3.5s ease-in-out infinite; }
+.o10-title { font-family: 'Playfair Display', serif; font-size: 1.55rem; font-weight: 600; color: var(--ink); margin-bottom: .65rem; }
+.o10-sub { font-size: .9rem; font-weight: 300; color: var(--ink-3); line-height: 1.72; margin-bottom: 1.75rem; }
+.o10-count { font-family: 'JetBrains Mono', monospace; font-size: 4.5rem; font-weight: 500; color: var(--gold); line-height: 1; margin: 1rem 0; }
+
+/* Floating trigger button */
+#fab {
+  position: fixed; bottom: 2rem; right: 2rem;
+  background: var(--gold); color: #fff; border: none;
+  border-radius: 100px; padding: .8rem 1.6rem;
+  font-size: .82rem; font-weight: 600; cursor: pointer;
+  box-shadow: 0 6px 24px rgba(184,134,11,.45); z-index: 490;
+  display: none; transition: all .3s cubic-bezier(.34,1.56,.64,1);
+}
+#fab.show { display: block; animation: fabIn .4s cubic-bezier(.34,1.56,.64,1); }
+@keyframes fabIn { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+#fab:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(184,134,11,.55); }
+
+/* ─── TOAST ─── */
+#toast {
+  position: fixed; bottom: 2rem; left: 50%;
+  transform: translateX(-50%) translateY(120%);
+  background: var(--ink); color: #fff;
+  padding: .9rem 1.5rem; border-radius: 100px;
+  max-width: 360px; min-width: 240px; text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,.25); z-index: 600;
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+#toast.on { transform: translateX(-50%) translateY(0); }
+#toast-title { font-family: 'JetBrains Mono', monospace; font-size: .58rem; letter-spacing: .2em; color: var(--gold-l); margin-bottom: .2rem; }
+#toast-msg { font-size: .84rem; font-weight: 400; }
+
+/* ─── HOME PROFILE HERO ─── */
+.home-prof {
+  display: flex; gap: 2rem; align-items: flex-start;
+  padding-bottom: 2rem; border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+.home-av {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--gold-xl); border: 2px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 1.9rem;
+  color: var(--gold); flex-shrink: 0;
+  box-shadow: 0 6px 20px rgba(184,134,11,.25);
+}
+.home-name { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 600; color: var(--ink); }
+.home-level { font-family: 'JetBrains Mono', monospace; font-size: .65rem; letter-spacing: .18em; color: var(--gold); margin: .4rem 0 .7rem; }
+.home-xp { font-size: .84rem; font-weight: 300; color: var(--ink-4); }
+
+/* Wisdom card */
+.wisdom-card {
+  background: linear-gradient(135deg, var(--ink), #2a2820);
+  border-radius: var(--r-lg); padding: 1.75rem;
+  margin-bottom: 1.25rem;
+}
+.wisdom-text { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-style: italic; color: rgba(255,255,255,.9); line-height: 1.65; margin-bottom: .5rem; }
+.wisdom-source { font-family: 'JetBrains Mono', monospace; font-size: .58rem; letter-spacing: .15em; color: var(--gold-l); }
+
+/* Canvas chart */
+canvas.chart { width: 100%; display: block; border-radius: var(--r-sm); }
+
+/* Absolute excellence dark card */
+.dark-card {
+  background: linear-gradient(135deg, #12100e, #1c1a16);
+  border-radius: var(--r-lg); padding: 1.75rem;
+  border: 1px solid rgba(255,255,255,.06);
+}
+.dark-card .card-label { color: rgba(255,255,255,.35); }
+.dark-card h3 { color: rgba(255,255,255,.9); }
+.dark-card p { color: rgba(255,255,255,.55); }
+.dark-card li { font-size: .88rem; font-weight: 300; color: rgba(255,255,255,.72); line-height: 1.8; padding-left: 1rem; position: relative; list-style: none; }
+.dark-card li::before { content: '—'; position: absolute; left: 0; color: var(--gold); }
+
+@media(max-width:768px){
+  #sidebar{width:100%;position:absolute;z-index:10;height:100%;transform:translateX(-100%);transition:transform .3s}
+  #sidebar.open{transform:none}
+  .g2,.g3{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr}
+  .rm-grid{grid-template-columns:1fr}
+  .bushido-grid{grid-template-columns:1fr}
+  .woop-grid{grid-template-columns:1fr 1fr}
+  .ls,.pb{padding-left:1.25rem;padding-right:1.25rem}
+  #nav{padding:1rem 1.25rem}
+  .ph{padding:1.75rem 1.25rem 1.5rem}
+}
+</style>
+</head>
+<body>
+
+<div id="pgprog"></div>
+
+<!-- 10-SECOND RULE OVERLAY -->
+<div id="overlay10">
+  <div class="overlay10-box">
+    <div class="o10-icon">🌿</div>
+    <div class="o10-title">Before You Grab Your Phone</div>
+    <div class="o10-sub">Say out loud exactly why you are picking it up. Then wait. Your prefrontal cortex needs 10 seconds to participate in this decision.</div>
+    <div class="o10-count" id="o10num">10</div>
+    <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+      <button class="btn primary" id="o10btn" onclick="startRule10()">Start 10 Seconds</button>
+      <button class="btn" onclick="closeRule10()">I already know why</button>
+    </div>
+    <div style="margin-top:1.25rem;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--ink-4);letter-spacing:.15em">KEEP PHONE OUTSIDE IMMEDIATE REACH · ALWAYS</div>
+  </div>
+</div>
+
+<button id="fab" onclick="openRule10()">🌿 10-Second Rule</button>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nlogo">Lumina</div>
+  <div class="nright">
+    <a class="nlink" href="#features">System</a>
+    <a class="nlink" href="#mods">Modules</a>
+    <button class="ncta" onclick="openApp()">Enter App</button>
+  </div>
+</nav>
+
+<!-- ══════════ HERO — SUNSET ══════════ -->
+<div id="hero">
+  <div id="hero-sticky">
+    <canvas id="skyCanvas"></canvas>
+    <!-- Text container — transforms on scroll -->
+    <div id="textScroll">
+      <div class="hslide">
+        <div class="he">Attention Architecture · Behavioral Clarity</div>
+        <h1 class="ht">Lu<em>mina</em></h1>
+        <p class="hs">Reclaiming your attention is not a question of willpower. It is a question of architecture.</p>
+      </div>
+      <div class="hslide">
+        <div class="he">The Problem</div>
+        <h2 class="ht" style="font-size:clamp(3rem,9vw,7rem)">You were<br><em>engineered</em><br>to scroll.</h2>
+        <p class="hs">Billions were invested in mechanisms that trap your mind. Lumina is the counter-architecture.</p>
+      </div>
+      <div class="hslide">
+        <div class="he">The Architecture</div>
+        <h2 class="ht" style="font-size:clamp(2.8rem,8vw,6.5rem)">Twelve<br><em>precision</em><br>modules.</h2>
+        <p class="hs">Permission gates. Dopamine budgets. Bushido discipline. Behavioral AI. One coherent system.</p>
+      </div>
+      <div class="hslide">
+        <div class="he">Golden Hour</div>
+        <h2 class="ht" style="font-size:clamp(2.5rem,7vw,5.5rem)">The evening<br><em>golden</em><br>hour awaits.</h2>
+        <p class="hs">This is what intentional living feels like — warm, calm, and completely present. The sun still shines for those who look up.</p>
+        <button class="hcta" onclick="openApp()">Begin Your Transformation</button>
+      </div>
+    </div>
+    <div class="scroll-hint" id="shint"><div class="scroll-pip"></div><span>Scroll to explore</span></div>
+  </div>
+</div>
+
+<!-- ══════════ LANDING ══════════ -->
+<div id="landing">
+  <div id="features" class="ls">
+    <div class="label">What is Lumina</div>
+    <h2 class="heading">Not an app.<br><em>A behavioral operating system.</em></h2>
+    <p class="body-text">Lumina synthesizes neuroscience, behavioral psychology, and ancient discipline frameworks into a complete system. Every module is a precision instrument. Together they make clarity your default state.</p>
+    <div class="fgrid">
+      <div class="fcell"><div class="fcell-num">01 — Flagship</div><h3>Permission Gate</h3><p>Complete one goal-aligned task to unlock a timed scroll window. Your dopamine is redirected — not suppressed. The 10-second rule enforces conscious use every time.</p></div>
+      <div class="fcell"><div class="fcell-num">02 — Psychology</div><h3>Dopamine Architecture</h3><p>Zero-based attention budgeting. Micro-dopamine fasting. Kaizen tracking. Two daily scroll windows. Turn your phone grey to avoid the dopamine trap.</p></div>
+      <div class="fcell"><div class="fcell-num">03 — Ancient Wisdom</div><h3>Bushido Discipline System</h3><p>Shugyo, Kime, Fudoshin, Mushin, Zanshin, Ganbaru. Seven samurai principles translated into modern behavioral protocols for absolute excellence.</p></div>
+      <div class="fcell"><div class="fcell-num">04 — Intelligence</div><h3>Mind Mirror AI</h3><p>After 7 days of check-in data, your behavioral pattern model emerges. Predict your high-risk windows. Pre-load countermeasures before the urge arrives.</p></div>
+    </div>
+  </div>
+
+  <div id="mods" style="background:var(--cream-d);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="ls">
+      <div class="label">Inside Lumina</div>
+      <h2 class="heading">Twelve modules.<br><em>Zero redundancy.</em></h2>
+      <div class="mlist">
+        <div class="mrow" onclick="openApp('home')"><div class="mrow-num">00</div><div><h3>Home & Profile</h3><p>XP, streak, level, today's challenge, daily wisdom — your behavioral command center.</p></div><div class="mrow-arrow">→</div></div>
+        <div class="mrow" onclick="openApp('gate')"><div class="mrow-num">01</div><div><span class="mrow-badge">FLAGSHIP</span><h3>Permission Gate</h3><p>Complete a task first. 10-second rule enforced. Earn the scroll.</p></div><div class="mrow-arrow">→</div></div>
+        <div class="mrow" onclick="openApp('timer')"><div class="mrow-num">02</div><div><h3>Focus Tools + Habits</h3><p>SVG arc timer, digital curfew, 7-day habit matrix.</p></div><div class="mrow-arrow">→</div></div>
+        <div class="mrow" onclick="openApp('urge')"><div class="mrow-num">03</div><div><h3>Urge Surfing Room</h3><p>90-second guided craving intervention. Box breathing + cognitive distancing.</p></div><div class="mrow-arrow">→</div></div>
+        <div class="mrow" onclick="openApp('dopamine')"><div class="mrow-num">04</div><div><h3>Dopamine Budget</h3><p>Daily attention tokens. Micro-fasting protocol. Kaizen improvement tracking.</p></div><div class="mrow-arrow">→</div></div>
+        <div class="mrow" onclick="openApp('replace')"><div class="mrow-num">05</div><div><h3>Replacement Menu</h3><p>Light, movement, cold, social — real dopamine from real experience.</p></div><div class="mrow-arrow">→</div></div>
+        <div class="mrow" onclick="openApp('woop')"><div class="mrow-num">06</div><div><h3>WOOP Goal System</h3><p>Harvard-backed goal architecture. 90-day deadline. If-Then planning.</p></div><div class="mrow-arrow">→</div></div>
+        <div class="mrow" onclick="openApp('bushido')"><div class="mrow-num">07</div><div><h3>Bushido Discipline</h3><p>Seven ancient principles. Daily grounding practice. Absolute excellence framework.</p></div><div class="mrow-arrow">→</div></div>
+        <div class="mrow" onclick="openApp('checkin')"><div class="mrow-num">08</div><div><h3>Check-In & Weekly Debrief</h3><p>5-metric daily assessment. Auto-generated behavioral report.</p></div><div class="mrow-arrow">→</div></div>
+        <div class="mrow" onclick="openApp('routine')"><div class="mrow-num">09</div><div><h3>Routine Generator</h3><p>Hardest task first. Plan tomorrow tonight. Dopamine detox before bed.</p></div><div class="mrow-arrow">→</div></div>
+        <div class="mrow" onclick="openApp('challenge')"><div class="mrow-num">10</div><div><h3>30-Day Challenge</h3><p>4 phases of graduated psychological depth. Daily behavioral interventions.</p></div><div class="mrow-arrow">→</div></div>
+        <div class="mrow" onclick="openApp('playbook')"><div class="mrow-num">11</div><div><h3>Interactive Playbook</h3><p>5 chapters. Each gamified: read, quiz, insight journal, XP rewards.</p></div><div class="mrow-arrow">→</div></div>
+        <div class="mrow" onclick="openApp('mirror')"><div class="mrow-num">12</div><div><h3>Mind Mirror AI</h3><p>Neural conditioning model. Anchoring protocol. Behavioral twin from your data.</p></div><div class="mrow-arrow">→</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-band">
+    <div class="label">Begin</div>
+    <h2 class="heading">The first step is<br><em>always deliberate.</em></h2>
+    <p class="body-text">Open the system. Complete one session. The compound effect begins today.</p>
+    <button class="btn-main" onclick="openApp()">Enter Lumina →</button>
+  </div>
+</div>
+
+<!-- ══════════ APP SHELL ══════════ -->
+<div id="shell">
+  <div id="sidebar">
+    <div class="sb-top">
+      <div class="sb-brand">Lumina</div>
+      <button class="sb-close" onclick="closeApp()">✕</button>
+    </div>
+    <div class="sb-profile">
+      <div class="sb-avatar" id="sbav">L</div>
+      <div class="sb-uname" id="sbn">Your Name</div>
+      <div class="sb-ulevel" id="sbl">Level 1 — Awakening</div>
+      <div class="sb-xp-bar"><div class="sb-xp-fill" id="xpf" style="width:0%"></div></div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-section-label">Core</div>
+      <div class="sbi on" data-p="home" onclick="sw('home')"><div class="sbi-icon">🏠</div><div class="sbi-label">Home</div></div>
+      <div class="sbi" data-p="gate" onclick="sw('gate')"><div class="sbi-icon">🔑</div><div class="sbi-label">Permission Gate</div><div class="sbi-new">KEY</div></div>
+      <div class="sb-section-label">Intervention</div>
+      <div class="sbi" data-p="urge" onclick="sw('urge')"><div class="sbi-icon">🌊</div><div class="sbi-label">Urge Surfing</div></div>
+      <div class="sbi" data-p="dopamine" onclick="sw('dopamine')"><div class="sbi-icon">💎</div><div class="sbi-label">Dopamine Budget</div></div>
+      <div class="sbi" data-p="replace" onclick="sw('replace')"><div class="sbi-icon">🌿</div><div class="sbi-label">Replacement Menu</div></div>
+      <div class="sb-section-label">Discipline</div>
+      <div class="sbi" data-p="woop" onclick="sw('woop')"><div class="sbi-icon">🎯</div><div class="sbi-label">WOOP Goals</div></div>
+      <div class="sbi" data-p="bushido" onclick="sw('bushido')"><div class="sbi-icon">⚔️</div><div class="sbi-label">Bushido System</div><div class="sbi-new">NEW</div></div>
+      <div class="sb-section-label">Tools</div>
+      <div class="sbi" data-p="timer" onclick="sw('timer')"><div class="sbi-icon">⏱</div><div class="sbi-label">Focus Tools</div></div>
+      <div class="sbi" data-p="checkin" onclick="sw('checkin')"><div class="sbi-icon">📊</div><div class="sbi-label">Check-In & Debrief</div><div class="sbi-badge" id="cib" style="display:none">!</div></div>
+      <div class="sbi" data-p="routine" onclick="sw('routine')"><div class="sbi-icon">📅</div><div class="sbi-label">Routine Generator</div></div>
+      <div class="sbi" data-p="challenge" onclick="sw('challenge')"><div class="sbi-icon">🏆</div><div class="sbi-label">30-Day Challenge</div><div class="sbi-badge" id="chb">D1</div></div>
+      <div class="sb-section-label">Knowledge</div>
+      <div class="sbi" data-p="playbook" onclick="sw('playbook')"><div class="sbi-icon">📖</div><div class="sbi-label">Playbook</div></div>
+      <div class="sbi" data-p="mirror" onclick="sw('mirror')"><div class="sbi-icon">🧠</div><div class="sbi-label">Mind Mirror AI</div></div>
+      <div class="sb-section-label">Progress</div>
+      <div class="sbi" data-p="progress" onclick="sw('progress')"><div class="sbi-icon">⭐</div><div class="sbi-label">XP & Achievements</div></div>
+    </div>
+  </div>
+
+  <div id="main">
+
+    <!-- HOME -->
+    <div class="panel on" id="p-home">
+      <div class="ph"><div class="ph-label">Home</div><div class="ph-title" id="htitle">Good morning.</div><div class="ph-desc" id="hsubt">Here is where you are. Here is what comes next.</div></div>
+      <div class="pb">
+        <div id="setupCard" class="card">
+          <div class="card-label">Welcome — One-Time Setup</div>
+          <h3 style="margin-bottom:.4rem">Welcome to Lumina 🌿</h3>
+          <p>Let's personalize your experience across all twelve modules.</p>
+          <label>Your name</label><input type="text" id="sname" placeholder="First name...">
+          <label>Primary challenge</label>
+          <select id="schal"><option>Social media doomscrolling</option><option>Constant notification checking</option><option>Phone as sleep aid</option><option>Streaming binge</option><option>Reflexive checking</option><option>All of the above</option></select>
+          <label>Daily screen time goal (hours)</label>
+          <input type="number" id="sgoal" value="2" min="0.5" max="8" step="0.5">
+          <button class="btn primary" onclick="saveSetup()">Begin My Journey ✨</button>
+        </div>
+        <div id="profHero" class="home-prof" style="display:none">
+          <div class="home-av" id="hav">L</div>
+          <div>
+            <div class="home-name" id="hname">Your Name</div>
+            <div class="home-level" id="hlv">Level 1 — Awakening</div>
+            <div class="home-xp" id="hxp">0 XP · 0-day streak</div>
+            <div style="display:flex;gap:.65rem;margin-top:1rem;flex-wrap:wrap">
+              <button class="btn primary sm" onclick="sw('gate')">🔑 Permission Gate</button>
+              <button class="btn sm" onclick="sw('checkin')">📊 Check-In</button>
+              <button class="btn sm" onclick="openRule10()">🌿 10-Second Rule</button>
+            </div>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="card"><div class="card-label">Today's Challenge</div><div id="hcd-t" style="font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--ink);margin-bottom:.4rem"></div><div id="hcd-d" style="font-size:.82rem;font-weight:300;color:var(--ink-3);line-height:1.65;margin-bottom:.85rem"></div><button class="btn sm" onclick="sw('challenge')">Go to Challenge →</button></div>
+          <div class="card"><div class="card-label">Focus Sessions</div><div id="hsess" style="font-family:'Playfair Display',serif;font-size:3rem;font-weight:700;color:var(--gold)">0</div><div style="font-size:.8rem;color:var(--ink-4);font-weight:300;margin-bottom:.75rem">completed today</div><button class="btn sm" onclick="sw('timer')">Start Session →</button></div>
+        </div>
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="card-label">Weekly Habit Completion</div>
+          <div id="hhab" style="font-size:.86rem;font-weight:300;color:var(--ink-3);margin-bottom:.5rem"></div>
+          <div class="prog-track"><div class="prog-fill" id="hhabbar" style="width:0%"></div></div>
+        </div>
+        <div class="wisdom-card">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.28em;color:var(--gold-l);margin-bottom:.75rem">DAILY WISDOM</div>
+          <div class="wisdom-text" id="wisdomT"></div>
+          <div class="wisdom-source" id="wisdomS"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERMISSION GATE -->
+    <div class="panel" id="p-gate">
+      <div class="ph"><div class="ph-label">Module 01 — Flagship</div><div class="ph-title">Permission Gate</div><div class="ph-desc">You earn the right to scroll. Complete one goal-aligned task first. The 10-second rule makes every phone pickup a conscious decision — not a reflex.</div></div>
+      <div class="pb">
+        <div class="gate-card">
+          <h2>📋 Your Task Queue</h2>
+          <p>Complete any task below to unlock a timed scroll window. Each task must advance your real life. Stop filling every small moment of boredom with your phone.</p>
+          <div id="taskList"></div>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.25rem">
+            <input type="text" id="newTask" placeholder="Add your own task..." style="flex:1;margin-bottom:0">
+            <select id="taskCat" style="width:160px;margin-bottom:0"><option value="deep">Deep work</option><option value="body">Movement</option><option value="learn">Learning</option><option value="social">Real social</option><option value="create">Creative</option></select>
+            <button class="btn primary" onclick="addTask()">Add Task</button>
+          </div>
+          <div class="gate-unlock-box" id="gateBox">
+            <div class="gate-unlock-label">SCROLL WINDOW UNLOCKED 🌿</div>
+            <p>You earned <strong id="gateMin">15</strong> minutes. Use them deliberately. Say out loud why before opening anything.</p>
+            <div class="gate-unlock-time" id="gateTimer">15:00</div>
+            <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+              <button class="btn ghost" id="gateBtn" onclick="gateToggle()">▶ Start Window</button>
+              <button class="btn ghost" onclick="resetGate()">Reset</button>
+            </div>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="card"><div class="card-label">Unlock Minutes per Category</div><h3>Earn what you scroll</h3><p>Deep work → 20 min · Movement → 15 min · Learning → 10 min · Creative → 15 min · Real social → 10 min</p><div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--gold)">Earned today: <span id="gateEarned">0</span> minutes</div></div>
+          <div class="card"><div class="card-label">10-Second Rule</div><h3>"Before grabbing your phone — say loud out why"</h3><p>State your reason aloud. Wait 10 seconds. Keep phone outside your immediate reach. This is the simplest, highest-leverage behavioral intervention available.</p><button class="btn primary sm" onclick="openRule10()">🌿 Activate Rule</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOCUS TOOLS -->
+    <div class="panel" id="p-timer">
+      <div class="ph"><div class="ph-label">Module 02</div><div class="ph-title">Focus Tools</div><div class="ph-desc">Treat your focus block like a meeting. Plan, prepare, start on time. Every phone-free session is a neurological deposit.</div></div>
+      <div class="pb">
+        <div class="g2">
+          <div class="card">
+            <div class="card-label">Session Timer</div>
+            <h3>Phone-Free Block</h3>
+            <p>Define the block. Honor it completely.</p>
+            <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.85rem">
+              <button class="btn sm" onclick="setP(15)">15m</button>
+              <button class="btn sm" onclick="setP(25)">25m</button>
+              <button class="btn sm" onclick="setP(45)">45m</button>
+              <button class="btn sm" onclick="setP(60)">1h</button>
+              <button class="btn sm" onclick="setP(90)">90m</button>
+            </div>
+            <label>Custom (minutes)</label>
+            <input type="number" id="cmin" value="25" min="1" max="480" onchange="setCustom()">
+            <div style="display:flex;justify-content:center;margin:.5rem 0 1.25rem">
+              <svg width="148" height="148" viewBox="0 0 148 148">
+                <circle cx="74" cy="74" r="62" fill="none" stroke="var(--cream-dd)" stroke-width="6"/>
+                <circle id="tarc" cx="74" cy="74" r="62" fill="none" stroke="var(--gold)" stroke-width="6"
+                  stroke-dasharray="389.6" stroke-dashoffset="0" stroke-linecap="round"
+                  transform="rotate(-90 74 74)" style="transition:stroke-dashoffset .5s"/>
+                <text x="74" y="78" text-anchor="middle" font-family="JetBrains Mono" font-size="21" fill="#1a1a18" font-weight="500" id="tsvgt">25:00</text>
+                <text x="74" y="96" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="#9a9a8f" id="tsvgs">READY</text>
+              </svg>
+            </div>
+            <div style="display:flex;gap:.65rem;justify-content:center">
+              <button class="btn primary" id="tbtn" onclick="tToggle()">▶ Start</button>
+              <button class="btn" onclick="tReset()">Reset</button>
+            </div>
+            <div style="text-align:center;margin-top:.85rem;font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--ink-4)">Sessions today: <span id="scd">0</span></div>
+          </div>
+          <div class="card">
+            <div class="card-label">Digital Curfew</div>
+            <h3>Lock-Time Protocol</h3>
+            <p>Define windows when your phone does not exist. Add a dopamine detox window before bed. Create an unreachable hour.</p>
+            <label>Lock begins</label><input type="time" id="ls" value="22:00">
+            <label>Lock ends</label><input type="time" id="le" value="07:00">
+            <label>Context</label>
+            <select id="lc"><option>Sleep optimization (dopamine detox before bed)</option><option>Deep work block</option><option>Meal time — no phone</option><option>Exercise / Shugyo</option><option>Morning protocol</option></select>
+            <button class="btn primary full" onclick="saveLock()">Commit to This Window ✓</button>
+            <div id="lconf" style="display:none;margin-top:.65rem;font-size:.82rem;color:var(--gold);font-weight:500"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Habit Matrix — Plan Tomorrow Tonight</div>
+          <h3>7-Day Phone-Free Habits</h3>
+          <p>Keep a visible list of the habits that destroy you — and their opposites. Each tick strengthens a neural pathway. "Stop filling every small moment of boredom with your phone."</p>
+          <div id="habCont"></div>
+          <div style="display:flex;gap:.65rem;margin-top:1rem">
+            <input type="text" id="nh" placeholder="Add a habit..." style="flex:1;margin-bottom:0">
+            <button class="btn primary" onclick="addHabit()">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- URGE SURFING -->
+    <div class="panel" id="p-urge">
+      <div class="ph"><div class="ph-label">Module 03</div><div class="ph-title">Urge Surfing Room</div><div class="ph-desc">When the craving hits — don't fight it. Surf it. Use box breathing and cognitive distancing. Every urge subsides within 90 seconds if you observe rather than act.</div></div>
+      <div class="pb">
+        <div class="urge-room">
+          <span class="urge-symbol" id="urgeWave">🌊</span>
+          <div class="urge-message" id="urgeMsg">Press start when you feel the urge.</div>
+          <div class="urge-prog">
+            <div class="prog-track" style="height:7px"><div class="prog-fill" id="urgeFill" style="width:0%"></div></div>
+            <div style="text-align:center;font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--ink-4);margin-top:.4rem" id="urgeTime">0 / 90 sec</div>
+          </div>
+          <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+            <button class="btn primary" id="urgeBtn" onclick="urgeStart()">🌊 Start Surfing</button>
+            <button class="btn" onclick="urgeReset()">Reset</button>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-label">Box Breathing — 4-4-4-4</div>
+            <h3>Reset Your Nervous System</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.5rem;text-align:center;margin:1rem 0">
+              <div style="padding:.85rem;background:var(--parchment);border-radius:10px;border:1px solid var(--border)"><div style="font-size:1.3rem;font-weight:700;color:var(--gold);font-family:'Playfair Display',serif">4s</div><div style="font-size:.62rem;font-family:'JetBrains Mono',monospace;color:var(--ink-4)">IN</div></div>
+              <div style="padding:.85rem;background:var(--parchment);border-radius:10px;border:1px solid var(--border)"><div style="font-size:1.3rem;font-weight:700;color:var(--gold);font-family:'Playfair Display',serif">4s</div><div style="font-size:.62rem;font-family:'JetBrains Mono',monospace;color:var(--ink-4)">HOLD</div></div>
+              <div style="padding:.85rem;background:var(--parchment);border-radius:10px;border:1px solid var(--border)"><div style="font-size:1.3rem;font-weight:700;color:var(--gold);font-family:'Playfair Display',serif">4s</div><div style="font-size:.62rem;font-family:'JetBrains Mono',monospace;color:var(--ink-4)">OUT</div></div>
+              <div style="padding:.85rem;background:var(--parchment);border-radius:10px;border:1px solid var(--border)"><div style="font-size:1.3rem;font-weight:700;color:var(--gold);font-family:'Playfair Display',serif">4s</div><div style="font-size:.62rem;font-family:'JetBrains Mono',monospace;color:var(--ink-4)">HOLD</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-label">Cognitive Distancing</div>
+            <h3>Imagining to be distanced</h3>
+            <p>View the urge as if it belongs to someone else. "A person is feeling the urge to scroll." Third-person instantly reduces emotional charge.</p>
+            <label>Log trigger</label>
+            <select id="trigSel"><option>Boredom</option><option>Anxiety</option><option>Avoidance</option><option>Loneliness</option><option>Habit loop</option><option>Meal boredom</option><option>Task transition</option></select>
+            <button class="btn primary sm" onclick="logTrig()">Log Trigger</button>
+            <div id="trigLog" style="margin-top:.65rem;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--ink-4);line-height:1.8"></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+          <div class="card" style="margin-bottom:0"><div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.2em;color:var(--gold);margin-bottom:.4rem">01 — OBSERVE</div><div style="font-size:.84rem;font-weight:300;color:var(--ink-3);line-height:1.65">Notice without labeling. It is a sensation — not a command.</div></div>
+          <div class="card" style="margin-bottom:0"><div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.2em;color:var(--gold);margin-bottom:.4rem">02 — BREATHE</div><div style="font-size:.84rem;font-weight:300;color:var(--ink-3);line-height:1.65">Box breathing: 4-4-4-4. The urge is already diminishing.</div></div>
+          <div class="card" style="margin-bottom:0"><div style="font-family:'JetBrains Mono',monospace;font-size:.58rem;letter-spacing:.2em;color:var(--gold);margin-bottom:.4rem">03 — DISTANCE</div><div style="font-size:.84rem;font-weight:300;color:var(--ink-3);line-height:1.65">Third-person perspective. You are the observer — not the urge.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOPAMINE BUDGET -->
+    <div class="panel" id="p-dopamine">
+      <div class="ph"><div class="ph-label">Module 04</div><div class="ph-title">Dopamine Budget</div><div class="ph-desc">Zero-based budgeting for your attention. Use micro-dopamine fasting — 10 minutes after eating, no phone. Set 2 daily scroll windows. Kaizen: improve 5% every day.</div></div>
+      <div class="pb">
+        <div class="g3">
+          <div class="stat"><div class="stat-val" id="tokLeft">20</div><div class="stat-label">Tokens Left</div></div>
+          <div class="stat"><div class="stat-val" id="tokSpent">0</div><div class="stat-label">Tokens Spent</div></div>
+          <div class="stat"><div class="stat-val" id="kaizenV">0%</div><div class="stat-label">Kaizen Today</div></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Today's Attention Budget — 1 Token = 15 Minutes</div>
+          <p style="margin-bottom:.75rem">Tap to spend a token deliberately. When gone, your screen time is complete for today. "Learn to say no to distractions, internal and external."</p>
+          <div class="token-grid" id="tokenGrid"></div>
+          <div style="font-size:.8rem;color:var(--ink-4);margin-top:.5rem;font-family:'JetBrains Mono',monospace;font-size:.62rem">Micro-Dopamine Fast: No phone for 10 min after every meal. Track progress to improve 5% every day.</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Set 2 Daily Scroll Windows + Allocate Budget</div>
+          <h3>Where will your attention go?</h3>
+          <div class="g2" style="margin-bottom:1rem">
+            <div><label>Scroll window 1</label><input type="time" id="sw1" value="13:00"></div>
+            <div><label>Scroll window 2</label><input type="time" id="sw2" value="19:00"></div>
+          </div>
+          <div id="budgetCats"></div>
+          <button class="btn primary" style="margin-top:.75rem" onclick="saveBudget()">Save Budget & Windows</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPLACEMENT MENU -->
+    <div class="panel" id="p-replace">
+      <div class="ph"><div class="ph-label">Module 05</div><div class="ph-title">Replacement Menu</div><div class="ph-desc">Use light, movement, cold, and real social connection as sources of happiness. Every option here delivers real dopamine through real experience — not simulation.</div></div>
+      <div class="pb">
+        <div class="rm-filters">
+          <button class="rm-filter on" onclick="filterRM('all',this)">All</button>
+          <button class="rm-filter" onclick="filterRM('1m',this)">1 min</button>
+          <button class="rm-filter" onclick="filterRM('5m',this)">5 min</button>
+          <button class="rm-filter" onclick="filterRM('20m',this)">20 min</button>
+          <button class="rm-filter" onclick="filterRM('1h',this)">1 hour</button>
+          <button class="rm-filter" onclick="filterRM('light',this)">☀ Light</button>
+          <button class="rm-filter" onclick="filterRM('move',this)">🏃 Move</button>
+          <button class="rm-filter" onclick="filterRM('cold',this)">❄ Cold</button>
+          <button class="rm-filter" onclick="filterRM('social',this)">💬 Social</button>
+        </div>
+        <div class="rm-grid" id="rmGrid"></div>
+      </div>
+    </div>
+
+    <!-- WOOP -->
+    <div class="panel" id="p-woop">
+      <div class="ph"><div class="ph-label">Module 06 — Harvard Method</div><div class="ph-title">WOOP Goal System</div><div class="ph-desc">Write down your goals detailed and clearly with deadlines. Share them with a trusted person. Create a checklist with small actions for momentum. Use the If-Then method to overcome distractions.</div></div>
+      <div class="pb">
+        <div class="woop-grid">
+          <div class="woop-cell"><div class="woop-letter">W</div><div class="woop-word">Wish</div><div class="woop-desc">What do you deeply wish for?</div></div>
+          <div class="woop-cell"><div class="woop-letter">O</div><div class="woop-word">Outcome</div><div class="woop-desc">Imagine the best possible result.</div></div>
+          <div class="woop-cell"><div class="woop-letter">O</div><div class="woop-word">Obstacle</div><div class="woop-desc">What is the main inner obstacle?</div></div>
+          <div class="woop-cell"><div class="woop-letter">P</div><div class="woop-word">Plan</div><div class="woop-desc">If obstacle → then specific action.</div></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Your 90-Day WOOP Goal</div>
+          <label>My wish</label><input type="text" id="wW" placeholder="e.g. Reduce phone use to 2 hours per day">
+          <label>Best possible outcome</label><textarea id="wO" rows="2" placeholder="I feel calm, present, focused. My relationships are deeper..."></textarea>
+          <label>Main internal obstacle</label><input type="text" id="wOb" placeholder="e.g. Boredom and reflexive checking habit">
+          <label>If-Then plan</label><textarea id="wP" rows="2" placeholder="If I feel the urge and reach for the phone, then I open the Replacement Menu instead..."></textarea>
+          <label>90-day deadline</label><input type="date" id="wD">
+          <label>Accountability partner</label><input type="text" id="wAcc" placeholder="Name of person you'll share this with">
+          <button class="btn primary" onclick="saveWoop()">Save WOOP + Generate Mini-Goals</button>
+          <div id="woopOut" style="display:none;margin-top:1.25rem"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">4 D's of Mastery</div>
+          <h3>The foundations of time mastery</h3>
+          <div class="g2" style="gap:.75rem">
+            <div style="padding:1rem;background:var(--parchment);border-radius:var(--r-sm);border:1px solid var(--border)"><div style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--gold);margin-bottom:.25rem">Desire</div><div style="font-size:.82rem;color:var(--ink-3)">To truly master time management</div></div>
+            <div style="padding:1rem;background:var(--parchment);border-radius:var(--r-sm);border:1px solid var(--border)"><div style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--gold);margin-bottom:.25rem">Decision</div><div style="font-size:.82rem;color:var(--ink-3)">Clear, strong will to master this ability</div></div>
+            <div style="padding:1rem;background:var(--parchment);border-radius:var(--r-sm);border:1px solid var(--border)"><div style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--gold);margin-bottom:.25rem">Discipline</div><div style="font-size:.82rem;color:var(--ink-3)">Force yourself to practice the techniques</div></div>
+            <div style="padding:1rem;background:var(--parchment);border-radius:var(--r-sm);border:1px solid var(--border)"><div style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--gold);margin-bottom:.25rem">Determination</div><div style="font-size:.82rem;color:var(--ink-3)">Develop the ability to persist</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUSHIDO -->
+    <div class="panel" id="p-bushido">
+      <div class="ph"><div class="ph-label">Module 07 — Flagship</div><div class="ph-title">Bushido Discipline System</div><div class="ph-desc">Shugyo, Kime, Sheishin, Fudoshin, Mushin, Zanshin, Ganbaru. Eliminate preference. Train when conditions are wrong. Detach from outcome. Avoid over-refinement. Don't repeat comfortable methods.</div></div>
+      <div class="pb">
+        <div class="bushido-grid" id="bushidoGrid"></div>
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="card-label">Daily Shugyo — Grounding Practice</div>
+          <h3>Hadouka-ashi no Shugyo</h3>
+          <p>20 minutes barefoot every day. Sensory reconnection with the physical world. This is the simplest available neurological reset. The body grounds what the phone scatters.</p>
+          <div style="display:flex;gap:.65rem;flex-wrap:wrap">
+            <button class="btn primary sm" onclick="logBushido('Shugyo (barefoot 20 min)')">✓ Done Today</button>
+            <button class="btn sm" onclick="logBushido('Kime — decisive action taken')">✓ Kime Practiced</button>
+            <button class="btn sm" onclick="logBushido('Ganbaru — stayed consistent')">✓ Ganbaru</button>
+          </div>
+          <div id="bushidoLog" style="margin-top:.75rem;font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--ink-4);line-height:1.85"></div>
+        </div>
+        <div class="dark-card">
+          <div class="card-label">Absolute Excellence — Langfristige Ambition</div>
+          <ul style="list-style:none;margin-top:.5rem">
+            <li>Langfristige Determination und Ambition</li>
+            <li>Schiere Produktivität und Effektivität</li>
+            <li>Perfekte Organisation und Ordnung</li>
+            <li>Rationalistische Klarheit und Logik</li>
+            <li>Unerschütterliche Prinzipien und Charakter</li>
+          </ul>
+          <div style="margin-top:1.25rem;display:flex;gap:.65rem;flex-wrap:wrap">
+            <button class="btn ghost" onclick="logBushido('Absolute Excellence committed')">Commit Today</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHECK-IN -->
+    <div class="panel" id="p-checkin">
+      <div class="ph"><div class="ph-label">Module 08</div><div class="ph-title">Check-In & Debrief</div><div class="ph-desc">Daily 5-metric behavioral assessment. Auto-generated weekly debrief. This is not journaling — it is data that reveals patterns invisible in the moment.</div></div>
+      <div class="pb">
+        <div class="g2">
+          <div class="card">
+            <div class="card-label">Today's Check-In</div>
+            <div class="srow"><div class="srow-head"><span class="srow-label">Energy level</span><span class="srow-val" id="evl">5</span></div><input type="range" min="1" max="10" value="5" oninput="document.getElementById('evl').textContent=this.value"></div>
+            <div class="srow"><div class="srow-head"><span class="srow-label">Focus quality</span><span class="srow-val" id="fvl">5</span></div><input type="range" min="1" max="10" value="5" oninput="document.getElementById('fvl').textContent=this.value"></div>
+            <div class="srow"><div class="srow-head"><span class="srow-label">Phone craving intensity</span><span class="srow-val" id="uvl">5</span></div><input type="range" min="0" max="10" value="5" oninput="document.getElementById('uvl').textContent=this.value"></div>
+            <div class="srow"><div class="srow-head"><span class="srow-label">Sleep quality</span><span class="srow-val" id="svl">6</span></div><input type="range" min="1" max="10" value="6" oninput="document.getElementById('svl').textContent=this.value"></div>
+            <div class="srow"><div class="srow-head"><span class="srow-label">Screen time today</span><span class="srow-val" id="scvl">3h</span></div><input type="range" min="0" max="12" step="0.5" value="3" oninput="document.getElementById('scvl').textContent=this.value+'h'"></div>
+            <label>Note (What triggered? What helped?)</label>
+            <textarea id="cnote" rows="2" placeholder="One honest observation..."></textarea>
+            <button class="btn primary full" onclick="submitCI()">Submit Check-In ✓</button>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:1.25rem">
+              <div class="card-label">7-Day Trend</div>
+              <canvas class="chart" id="ciChart" height="140"></canvas>
+            </div>
+            <div class="card">
+              <div class="card-label">Weekly Debrief</div>
+              <div id="wdebriefInfo"></div>
+              <div class="wd-grid" id="wdGrid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROUTINE -->
+    <div class="panel" id="p-routine">
+      <div class="ph"><div class="ph-label">Module 09</div><div class="ph-title">Routine Generator</div><div class="ph-desc">Write down 3 tasks for the next day each night. Wake up early and do the hardest task first. Plan every part of your day into clear blocks. Plan tomorrow tonight — meals, outfit, priorities.</div></div>
+      <div class="pb">
+        <div class="g2" style="margin-bottom:1.5rem">
+          <div class="card">
+            <div class="card-label">Your Parameters</div>
+            <label>Wake time</label><input type="time" id="rw" value="06:30">
+            <label>Sleep time</label><input type="time" id="rsleep" value="22:30">
+            <label>Work hours / day</label><input type="number" id="rwh" value="8" min="0" max="16">
+            <label>Primary problem</label>
+            <select id="rprob"><option>Social media doomscrolling</option><option>Constant notifications</option><option>Phone as sleep aid</option><option>Streaming binge</option><option>All of the above</option></select>
+            <label>Replace phone time with</label>
+            <select id="rrep"><option>Reading</option><option>Exercise / Shugyo</option><option>Meditation / Visualization</option><option>Creative work</option><option>Deep work / Study</option></select>
+          </div>
+          <div class="card">
+            <div class="card-label">Protocol Settings</div>
+            <label>Intensity</label>
+            <select id="rint"><option value="soft">Gentle — one step at a time</option><option value="med" selected>Balanced — ambitious and realistic</option><option value="hard">Hardcore — complete behavioral reset</option></select>
+            <label>Daily screen time target</label>
+            <div class="srow-head" style="margin-bottom:.35rem"><span class="srow-label">Target</span><span class="srow-val" id="rtl">2h</span></div>
+            <input type="range" min="0.5" max="6" step="0.5" value="2" oninput="document.getElementById('rtl').textContent=this.value+'h'">
+            <label style="margin-top:1rem">Morning phone-free window</label>
+            <select id="rmorn"><option value="30">30 minutes</option><option value="60" selected>60 minutes</option><option value="90">90 minutes</option></select>
+            <button class="btn primary full" style="margin-top:.75rem" onclick="buildRoutine()">Generate My Protocol →</button>
+          </div>
+        </div>
+        <div id="routineOut" style="display:none">
+          <div class="card"><div class="card-label">Your Protocol</div><h3 id="routineTitle" style="margin-bottom:1.5rem"></h3><div id="routineSteps"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHALLENGE -->
+    <div class="panel" id="p-challenge">
+      <div class="ph"><div class="ph-label">Module 10</div><div class="ph-title">30-Day Challenge</div><div class="ph-desc">One evidence-based behavioral intervention per day. 4 phases of graduated psychological depth. Set yourself a 30-day comfort detox. Use the 1-2-3 Rule: count to 3 then move directly.</div></div>
+      <div class="pb">
+        <div class="g2" style="margin-bottom:1.25rem">
+          <div class="stat"><div class="stat-val" id="chComp">0</div><div class="stat-label">Days Completed</div></div>
+          <div class="card" style="margin-bottom:0"><div class="card-label">Current Phase</div><div id="chPhase" style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;color:var(--ink);margin-bottom:.35rem"></div><div id="chPhaseD" style="font-size:.82rem;font-weight:300;color:var(--ink-3);line-height:1.62"></div></div>
+        </div>
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="card-label">Progress</div>
+          <div class="prog-track" style="height:7px"><div class="prog-fill" id="chBar" style="width:0%"></div></div>
+          <div class="prog-labels"><span>Day 1</span><span>Day 30</span></div>
+        </div>
+        <div id="chList"></div>
+      </div>
+    </div>
+
+    <!-- PLAYBOOK -->
+    <div class="panel" id="p-playbook">
+      <div class="ph"><div class="ph-label">Module 11</div><div class="ph-title">Interactive Playbook</div><div class="ph-desc">Five chapters. Each gamified: read the material, prove understanding with a quiz, write your personal insight. XP rewards mastery — not just reading.</div></div>
+      <div class="pb">
+        <div class="pb-tabs" id="pbTabs"></div>
+        <div id="pbContent"></div>
+      </div>
+    </div>
+
+    <!-- MIND MIRROR -->
+    <div class="panel" id="p-mirror">
+      <div class="ph"><div class="ph-label">Module 12 — AI</div><div class="ph-title">Mind Mirror</div><div class="ph-desc">Neural conditioning: becoming the world tree. Auto-suggestion rituals with powerful neurochemical triggers. Anchoring, hedonische resets, paradox overload handling — your behavioral twin modeled from your data.</div></div>
+      <div class="pb">
+        <div class="card" style="margin-bottom:1.25rem">
+          <div class="card-label">Data Requirements</div>
+          <div class="prog-track" style="height:5px;margin-top:.5rem"><div class="prog-fill" id="mirrorBar" style="width:0%"></div></div>
+          <div class="prog-labels"><span id="mci">0 check-ins</span><span>7 needed for full model</span></div>
+        </div>
+        <div id="mirrorOut"></div>
+        <div class="card" style="margin-top:1.25rem">
+          <div class="card-label">Anchoring Protocol</div>
+          <h3>Install Your Neurochemical Anchor</h3>
+          <p>Choose a physical gesture paired with your peak state. Use it in 5 consecutive peak moments to wire the connection. Repeat 2-3 power words or short phrases as self-talk.</p>
+          <label>Anchor gesture</label>
+          <select id="anchorG" style="margin-bottom:.9rem"><option>Left fist clench</option><option>Touch collarbone</option><option>Fingertips together</option><option>Deep breath + smile</option><option>Press thumb to index</option></select>
+          <label>Your peak state to anchor</label>
+          <input type="text" id="anchorS" placeholder="e.g. Focused, calm, and deeply productive">
+          <label>Power words (2-3 words)</label>
+          <input type="text" id="anchorW" placeholder="e.g. Sharp. Present. Sovereign.">
+          <button class="btn primary sm" onclick="saveAnchor()">Install Anchor</button>
+          <div id="anchorOut" style="display:none;margin-top:.85rem;padding:1rem;background:var(--gold-xl);border-radius:var(--r-sm);font-size:.88rem;color:var(--gold)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="panel" id="p-progress">
+      <div class="ph"><div class="ph-label">Progress</div><div class="ph-title">XP & Achievements</div><div class="ph-desc">Every deliberate action compounds. Measure your progress visibly, build momentum deliberately.</div></div>
+      <div class="pb">
+        <div class="g3">
+          <div class="stat"><div class="stat-val" id="pxp">0</div><div class="stat-label">Total XP</div></div>
+          <div class="stat"><div class="stat-val" id="pstr">0</div><div class="stat-label">Day Streak</div></div>
+          <div class="stat"><div class="stat-val" id="psess">0</div><div class="stat-label">Sessions</div></div>
+        </div>
+        <div class="card" style="margin-top:1.25rem">
+          <div class="card-label">Level Progression</div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem">
+            <div style="font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:600;color:var(--ink)">Level <span id="plv">1</span> — <span id="plvn">Awakening</span></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--ink-4)"><span id="pxpc">0</span> / <span id="pxpn">100</span></div>
+          </div>
+          <div class="prog-track" style="height:6px"><div class="prog-fill" id="pxpbar" style="width:0%"></div></div>
+        </div>
+        <div class="card" style="margin-top:1.25rem">
+          <div class="card-label">30-Day Screen Time</div>
+          <canvas class="chart" id="progChart" height="140"></canvas>
+        </div>
+        <div class="card" style="margin-top:1.25rem">
+          <div class="card-label">Achievements</div>
+          <div class="badge-grid" id="badgeGrid"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<div id="toast"><div id="toast-title"></div><div id="toast-msg"></div></div>
+
+<script>
+/* ══ SUNSET SKY CANVAS ══ */
+(function(){
+  const cv=document.getElementById('skyCanvas'),ctx=cv.getContext('2d');
+  function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight;}rsz();
+  window.addEventListener('resize',rsz);
+  let p=0; // 0=dawn → 1=golden sunset (warm, no storm)
+
+  const K=[
+    {a:'#fde8d0',b:'#f4a870',h:'#e8784a',sx:.32,sy:.80,sr:.048,sc:'#ff9950',sg:'rgba(255,150,90,.38)',star:.55,dc:.25,bird:0},
+    {a:'#87ceeb',b:'#b8e0f5',h:'#d4ece8',sx:.45,sy:.42,sr:.065,sc:'#fff8d8',sg:'rgba(255,240,180,.22)',star:0,dc:.72,bird:.3},
+    {a:'#5badd8',b:'#88c8e8',h:'#c4e4f4',sx:.55,sy:.20,sr:.072,sc:'#fffde8',sg:'rgba(255,245,200,.18)',star:0,dc:.92,bird:.75},
+    {a:'#f0a048',b:'#e87248',h:'#c04f28',sx:.72,sy:.52,sr:.095,sc:'#ffcc44',sg:'rgba(255,200,80,.52)',star:.08,dc:.48,bird:.5},
+    {a:'#e8602a',b:'#c84028',h:'#802010',sx:.78,sy:.70,sr:.11,sc:'#ffaa22',sg:'rgba(255,165,60,.58)',star:.32,dc:.22,bird:.18},
+  ];
+  const KP=[0,.22,.48,.72,1];
+  const lp=(a,b,t)=>a+(b-a)*t;
+  const h2r=h=>{if(!h||h==='transparent')return[0,0,0];const m=h.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);return m?[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)]:[0,0,0];};
+  const lh=(c1,c2,t)=>{const a=h2r(c1),b=h2r(c2);return`rgb(${Math.round(lp(a[0],b[0],t))},${Math.round(lp(a[1],b[1],t))},${Math.round(lp(a[2],b[2],t))})`;};
+  function gk(prog){
+    for(let i=0;i<KP.length-1;i++){
+      if(prog<=KP[i+1]){const t=(prog-KP[i])/(KP[i+1]-KP[i]),a=K[i],b=K[i+1];
+        return{sa:lh(a.a,b.a,t),sb:lh(a.b,b.b,t),sh:lh(a.h,b.h,t),sx:lp(a.sx,b.sx,t),sy:lp(a.sy,b.sy,t),sr:lp(a.sr,b.sr,t),sc:a.sc,sg:a.sg,star:lp(a.star,b.star,t),dc:lp(a.dc,b.dc,t),bird:lp(a.bird,b.bird,t)};
+      }
+    }return K[4];
+  }
+  const clouds=Array.from({length:8},()=>({x:Math.random(),y:.07+Math.random()*.35,w:.07+Math.random()*.13,h:.022+Math.random()*.04,spd:.00004+Math.random()*.00003}));
+  const stars=Array.from({length:80},()=>({x:Math.random(),y:Math.random()*.65,r:Math.random()*1.3+.2}));
+  const birds=Array.from({length:7},()=>({x:Math.random(),y:.12+Math.random()*.35,spd:.0003+Math.random()*.00018,wave:Math.random()*Math.PI*2,sz:3+Math.random()*3}));
+  let lt=0;
+  function frame(t){
+    const dt=t-lt;lt=t;const W=cv.width,H=cv.height;
+    ctx.clearRect(0,0,W,H);const k=gk(p);
+    const gs=ctx.createLinearGradient(0,0,0,H);gs.addColorStop(0,k.sa);gs.addColorStop(.6,k.sb);gs.addColorStop(1,k.sh);
+    ctx.fillStyle=gs;ctx.fillRect(0,0,W,H);
+    // Stars
+    if(k.star>.01){stars.forEach(s=>{ctx.fillStyle=`rgba(255,255,240,${k.star*.85})`;ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);ctx.fill();});}
+    // Sun rays (golden hour)
+    if(p>.62&&k.sr>.01){
+      const sx=k.sx*W,sy=k.sy*H,sr=k.sr*W,ra=Math.min(.12,(p-.62)*0.35);
+      for(let i=0;i<12;i++){const ang=(i/12)*Math.PI*2;ctx.beginPath();ctx.moveTo(sx+Math.cos(ang)*sr*.9,sy+Math.sin(ang)*sr*.9);ctx.lineTo(sx+Math.cos(ang)*sr*5.5,sy+Math.sin(ang)*sr*5.5);ctx.strokeStyle=`rgba(255,200,80,${ra})`;ctx.lineWidth=sr*.35;ctx.stroke();}
+    }
+    // Sun
+    if(k.sr>.005){
+      const sx=k.sx*W,sy=k.sy*H,sr=k.sr*W;
+      const g=ctx.createRadialGradient(sx,sy,0,sx,sy,sr*4);g.addColorStop(0,k.sg);g.addColorStop(.5,k.sg.replace(/[\d.]+\)$/,'0.07)'));g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(sx,sy,sr*4,0,Math.PI*2);ctx.fill();
+      if(p>.55){ctx.strokeStyle=`rgba(255,165,60,${(p-.55)*0.3})`;ctx.lineWidth=sr*.28;ctx.beginPath();ctx.arc(sx,sy,sr*1.55,0,Math.PI*2);ctx.stroke();}
+      const d=ctx.createRadialGradient(sx-sr*.2,sy-sr*.2,0,sx,sy,sr);d.addColorStop(0,'rgba(255,255,220,.92)');d.addColorStop(.7,k.sc);d.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=d;ctx.beginPath();ctx.arc(sx,sy,sr,0,Math.PI*2);ctx.fill();
+    }
+    // Clouds
+    if(k.dc>.01){
+      clouds.forEach(c=>{c.x=(c.x+c.spd*dt)%1;const cx=c.x*W,cy=c.y*H,cw=c.w*W,ch=c.h*H;
+        const cr=p>.55?`rgba(255,${Math.round(190-p*70)},${Math.round(170-p*120)},${k.dc*.55})`:`rgba(255,255,255,${k.dc*.52})`;
+        ctx.fillStyle=cr;[{ox:0,oy:0,sw:1,sh:1},{ox:-.35,oy:.2,sw:.65,sh:.75},{ox:.3,oy:.1,sw:.6,sh:.7}].forEach(({ox,oy,sw,sh})=>{ctx.beginPath();ctx.ellipse(cx+cw*ox,cy+ch*oy,cw*sw,ch*sh,0,0,Math.PI*2);ctx.fill();});
+      });
+    }
+    // Horizon glow at golden hour
+    if(p>.5){const a=(p-.5)*1.15;const hg=ctx.createLinearGradient(0,H*.5,0,H);hg.addColorStop(0,`rgba(240,130,60,${a*.3})`);hg.addColorStop(1,`rgba(180,50,20,${a*.14})`);ctx.fillStyle=hg;ctx.fillRect(0,H*.5,W,H*.5);}
+    // Silhouette hills
+    if(p>.58){const ha=Math.min(.9,(p-.58)*3.5);
+      ctx.fillStyle=`rgba(18,14,10,${ha*.55})`;ctx.beginPath();[[0,.83],[.12,.77],[.26,.79],[.38,.73],[.52,.75],[.64,.69],[.76,.72],[.9,.77],[1,.81],[1,1],[0,1]].forEach(([x,y],i)=>i===0?ctx.moveTo(x*W,y*H):ctx.lineTo(x*W,y*H));ctx.closePath();ctx.fill();
+      ctx.fillStyle=`rgba(10,8,5,${ha*.78})`;ctx.beginPath();[[0,.91],[.15,.87],[.3,.89],[.46,.85],[.6,.87],[.76,.83],[.9,.87],[1,.9],[1,1],[0,1]].forEach(([x,y],i)=>i===0?ctx.moveTo(x*W,y*H):ctx.lineTo(x*W,y*H));ctx.closePath();ctx.fill();
+    }
+    // Birds
+    if(k.bird>.01){
+      birds.forEach(b=>{b.x=(b.x+b.spd*dt)%1.12;if(b.x>1.12)b.x=-.12;b.wave+=dt*.0022;
+        const bx=b.x*W,by=b.y*H+Math.sin(b.wave)*10,fl=Math.sin(b.wave*2)*8;
+        ctx.strokeStyle=`rgba(28,22,16,${k.bird*.58})`;ctx.lineWidth=1.4;ctx.lineCap='round';
+        ctx.beginPath();ctx.moveTo(bx-b.sz,by+fl);ctx.quadraticCurveTo(bx,by,bx+b.sz,by+fl);ctx.stroke();
+      });
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  window.addEventListener('scroll',()=>{
+    const hEl=document.getElementById('hero');
+    p=Math.min(1,Math.max(0,window.scrollY/(hEl.offsetHeight-window.innerHeight)));
+    // Scroll text transform
+    document.getElementById('textScroll').style.transform=`translateY(${-window.scrollY}px)`;
+    document.getElementById('shint').style.opacity=p>.06?'0':'1';
+    const past=window.scrollY>window.innerHeight*3.5;
+    document.getElementById('nav').classList.toggle('solid',past);
+    const lS=Math.max(0,window.scrollY-hEl.offsetHeight);
+    const lH=document.getElementById('landing').offsetHeight;
+    document.getElementById('pgprog').style.width=Math.min(100,lS/lH*100)+'%';
+  });
+})();
+
+/* ══ STATE ══ */
+const S={
+  xp:0,streak:0,sessCount:0,ciCount:0,
+  done:new Set(),badges:new Set(),pbDone:new Set(),pbQuiz:new Set(),pbInsights:{},
+  habits:[
+    {n:'Morning phone-free (60 min)',d:Array(7).fill(false)},
+    {n:'No phone during meals',d:Array(7).fill(false)},
+    {n:'Dopamine detox before bed',d:Array(7).fill(false)},
+    {n:'Barefoot 20 min — Shugyo',d:Array(7).fill(false)},
+    {n:'Stop filling boredom with phone',d:Array(7).fill(false)},
+  ],
+  scr:Array(30).fill(null),ci:[],
+  profile:{name:'',goal:2},setup:false,curDay:1,
+  ts:25*60,tt:25*60,tr:false,
+  tasks:[],gA:false,gS:0,gT:0,gR:false,gEarned:0,
+  tokens:20,tSpent:0,budg:{social:4,news:2,video:4,games:2,browse:4,other:4},
+  rmF:'all',rB:false,
+  urgeS:false,urgeN:0,trigs:[],
+  bLog:[],woop:null,anchor:null,
+};
+const LVS=[{mn:0,mx:100,n:1,nm:'Awakening'},{mn:100,mx:300,n:2,nm:'Observer'},{mn:300,mx:600,n:3,nm:'Aware'},{mn:600,mx:1000,n:4,nm:'Focused'},{mn:1000,mx:1500,n:5,nm:'Disciplined'},{mn:1500,mx:2200,n:6,nm:'Sovereign'},{mn:2200,mx:99999,n:7,nm:'Mind Architect'}];
+const getLv=()=>LVS.find(l=>S.xp>=l.mn&&S.xp<l.mx)||LVS[6];
+const g=id=>document.getElementById(id);
+const WISDOM=[
+  {q:'"Ganbaru — stay consistent, especially in hard times."',s:'Bushido Principle'},
+  {q:'"Eliminate preference. Train when conditions are wrong."',s:'Kime / Fudoshin'},
+  {q:'"Before grabbing your phone — say loud out why."',s:'Lumina Protocol'},
+  {q:'"Every urge peaks and subsides within 90 seconds."',s:'Urge Surfing Science'},
+  {q:'"Kaizen: improve 5% every single day without exception."',s:'Japanese Philosophy'},
+  {q:'"Plan tomorrow tonight. Your morning depends on your evening."',s:'Routine Architecture'},
+  {q:'"Stop filling every small moment of boredom with your phone."',s:'Lumina Principle'},
+  {q:'"The path of least resistance is the path of default behavior."',s:'Behavioral Science'},
+  {q:'"A river cuts through rock not by power, but by persistence."',s:'Stoic Wisdom'},
+  {q:'"Set process goals — choose and focus on one controllable thing."',s:'Your Notes'},
+];
+function addXP(n,t,m){S.xp+=n;updXP();chkBadges();toast(t,m||`+${n} XP`);}
+function updXP(){
+  const lv=getLv(),pct=Math.min(100,((S.xp-lv.mn)/(lv.mx-lv.mn))*100),nm=S.profile.name||'User';
+  const setT=(id,v)=>{const el=g(id);if(el)el.textContent=v;};
+  const setW=(id,v)=>{const el=g(id);if(el)el.style.width=v;};
+  setT('sbav',nm[0]||'L');setT('sbn',nm);setT('sbl',`Level ${lv.n} — ${lv.nm}`);setW('xpf',pct+'%');
+  setT('hav',nm[0]||'L');setT('hname',nm);setT('hlv',`Level ${lv.n} — ${lv.nm}`);setT('hxp',`${S.xp} XP · ${S.streak}-day streak`);
+  setT('hsess',S.sessCount);setT('pxp',S.xp);setT('pstr',S.streak);setT('psess',S.sessCount);
+  setT('plv',lv.n);setT('plvn',lv.nm);setT('pxpc',S.xp-lv.mn);setT('pxpn',lv.mx-lv.mn);setW('pxpbar',pct+'%');
+  setT('chb','D'+S.curDay);setW('mirrorBar',Math.min(100,S.ci.length/7*100)+'%');setT('mci',S.ci.length+' check-ins');
+  const wi=WISDOM[Math.floor(Date.now()/86400000)%WISDOM.length];
+  setT('wisdomT',wi.q);setT('wisdomS','— '+wi.s);
+}
+
+/* ══ APP OPEN/CLOSE ══ */
+function openApp(panel){g('shell').classList.add('on');document.body.style.overflow='hidden';g('fab').classList.add('show');if(panel)sw(panel);updAll();}
+function closeApp(){g('shell').classList.remove('on');document.body.style.overflow='';g('fab').classList.remove('show');}
+
+/* ══ PANEL SWITCH ══ */
+function sw(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.sbi').forEach(i=>i.classList.remove('on'));
+  const p=g('p-'+id);if(p)p.classList.add('on');
+  const i=document.querySelector(`[data-p="${id}"]`);if(i)i.classList.add('on');
+  if(id==='playbook')renderPB();
+  if(id==='mirror')renderMirror();
+  if(id==='progress')drawProgChart();
+  if(id==='checkin'){drawCIChart();renderDebrief();}
+  if(id==='bushido')renderBushido();
+}
+
+/* ══ SETUP ══ */
+function saveSetup(){
+  const n=g('sname').value.trim();if(!n){toast('Required','Please enter your name.');return;}
+  S.profile={name:n,challenge:g('schal').value,goal:parseFloat(g('sgoal').value)};
+  S.setup=true;g('setupCard').style.display='none';g('profHero').style.display='flex';
+  updXP();addXP(50,'Welcome to Lumina 🌿','Your journey begins now.');
+}
+
+/* ══ TIMER ══ */
+let tInt=null;
+function setP(m){if(S.tr)return;S.ts=m*60;S.tt=m*60;g('cmin').value=m;updTimer();}
+function setCustom(){if(S.tr)return;const v=parseInt(g('cmin').value)||25;S.ts=v*60;S.tt=v*60;updTimer();}
+function updTimer(){
+  const m=Math.floor(S.ts/60),s=S.ts%60,txt=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  g('tsvgt')&&(g('tsvgt').textContent=txt);
+  g('tarc')&&(g('tarc').style.strokeDashoffset=(2*Math.PI*62)*(S.ts/S.tt));
+  g('tsvgs')&&(g('tsvgs').textContent=S.tr?'RUNNING':S.ts===S.tt?'READY':'PAUSED');
+  g('tbtn')&&(g('tbtn').textContent=S.tr?'⏸ Pause':S.ts<S.tt?'▶ Resume':'▶ Start');
+  g('scd')&&(g('scd').textContent=S.sessCount);
+}
+function tToggle(){
+  if(S.tr){clearInterval(tInt);S.tr=false;updTimer();}
+  else{S.tr=true;tInt=setInterval(()=>{
+    if(S.ts<=0){clearInterval(tInt);S.tr=false;S.sessCount++;S.streak++;
+      addXP(50,'Session Complete ✓',`${Math.floor(S.tt/60)}m done.`);
+      S.ts=S.tt;updTimer();updXP();chkBadges();g('hsess')&&(g('hsess').textContent=S.sessCount);
+    }else{S.ts--;updTimer();}
+  },1000);}
+}
+function tReset(){clearInterval(tInt);S.tr=false;S.ts=S.tt;updTimer();}
+function saveLock(){
+  const s=g('ls').value,e=g('le').value,c=g('lc').value,el=g('lconf');
+  el.style.display='block';el.textContent=`✓ Committed: ${s}–${e} · ${c}`;
+  addXP(20,'Curfew Set',`${s}–${e} locked.`);
+}
+
+/* ══ HABITS ══ */
+const DL=['M','T','W','T','F','S','S'];
+function renderHabits(){
+  const c=g('habCont');if(!c)return;c.innerHTML='';
+  S.habits.forEach((h,hi)=>{
+    const r=document.createElement('div');r.className='habit-row';
+    const nm=document.createElement('span');nm.className='habit-name';nm.textContent=h.n;
+    const ds=document.createElement('div');ds.className='habit-days';
+    h.d.forEach((on,di)=>{
+      const d=document.createElement('div');d.className='habit-day'+(on?' done':'');d.textContent=DL[di];
+      d.onclick=()=>{h.d[di]=!h.d[di];if(h.d[di])addXP(15,'Habit ✓',h.n);renderHabits();updHH();};
+      ds.appendChild(d);
+    });
+    r.appendChild(nm);r.appendChild(ds);c.appendChild(r);
+  });
+}
+function addHabit(){const v=g('nh').value.trim();if(!v)return;S.habits.push({n:v,d:Array(7).fill(false)});g('nh').value='';renderHabits();}
+function updHH(){
+  const tot=S.habits.length*7,done=S.habits.reduce((s,h)=>s+h.d.filter(Boolean).length,0);
+  const pct=tot>0?Math.round(done/tot*100):0;
+  g('hhab')&&(g('hhab').textContent=`${done}/${tot} habit-days this week (${pct}%)`);
+  g('hhabbar')&&(g('hhabbar').style.width=pct+'%');
+}
+
+/* ══ PERMISSION GATE ══ */
+const GMINS={deep:20,body:15,learn:10,social:10,create:15};
+const DTASKS=[
+  {n:'Write 200 words toward a real goal',cat:'create',done:false},
+  {n:'20 minutes of focused, tab-free work',cat:'deep',done:false},
+  {n:'10 minutes of physical movement',cat:'body',done:false},
+  {n:'Read 5 pages of a physical book',cat:'learn',done:false},
+  {n:'One real conversation — voice, not text',cat:'social',done:false},
+];
+function initTasks(){if(S.tasks.length===0)S.tasks=JSON.parse(JSON.stringify(DTASKS));}
+function renderGate(){
+  initTasks();const c=g('taskList');if(!c)return;c.innerHTML='';
+  S.tasks.forEach((t,i)=>{
+    const r=document.createElement('div');r.className='task-item'+(t.done?' done':'');
+    r.innerHTML=`<div class="task-check">${t.done?'✓':''}</div><div><div class="task-name">${t.n}</div><div class="task-cat">Unlocks ${GMINS[t.cat]||10} min · ${t.cat}</div></div>`;
+    r.onclick=()=>toggleTask(i);c.appendChild(r);
+  });
+  const earned=S.tasks.filter(t=>t.done).reduce((s,t)=>s+(GMINS[t.cat]||10),0);
+  S.gEarned=earned;
+  g('gateEarned')&&(g('gateEarned').textContent=earned);
+  g('gateMin')&&(g('gateMin').textContent=earned);
+  if(earned>0&&!S.gA){g('gateBox').classList.add('on');S.gT=earned*60;S.gS=S.gT;updGateTimer();}
+  else if(earned===0)g('gateBox').classList.remove('on');
+}
+function toggleTask(i){S.tasks[i].done=!S.tasks[i].done;if(S.tasks[i].done)addXP(30,'Task Done ✓',`+${GMINS[S.tasks[i].cat]||10} min unlocked`);renderGate();}
+function addTask(){const n=g('newTask').value.trim();if(!n)return;const cat=g('taskCat').value;S.tasks.push({n,cat,done:false});g('newTask').value='';renderGate();}
+let gInt=null;
+function gateToggle(){
+  if(S.gR){clearInterval(gInt);S.gR=false;g('gateBtn').textContent='▶ Resume';}
+  else{S.gR=true;S.gA=true;g('gateBtn').textContent='⏸ Pause';
+    gInt=setInterval(()=>{
+      if(S.gS<=0){clearInterval(gInt);S.gR=false;S.gA=false;g('gateTimer').textContent='✓ Done';
+        addXP(10,'Window Used','Deliberate scroll logged.');S.tasks.forEach(t=>t.done=false);
+        setTimeout(()=>{renderGate();g('gateBox').classList.remove('on');},2000);
+      }else{S.gS--;updGateTimer();}
+    },1000);
+  }
+}
+function updGateTimer(){const m=Math.floor(S.gS/60),s=S.gS%60;g('gateTimer')&&(g('gateTimer').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);}
+function resetGate(){clearInterval(gInt);S.gR=false;S.gA=false;S.tasks.forEach(t=>t.done=false);renderGate();g('gateBox').classList.remove('on');}
+
+/* ══ 10-SECOND RULE ══ */
+let r10Int=null,r10Running=false;
+function openRule10(){g('overlay10').classList.add('on');g('o10num').textContent='10';}
+function closeRule10(){g('overlay10').classList.remove('on');clearInterval(r10Int);r10Running=false;g('o10num').textContent='10';g('o10btn').textContent='Start 10 Seconds';g('o10btn').disabled=false;}
+function startRule10(){
+  if(r10Running)return;r10Running=true;let c=10;
+  g('o10btn').textContent='Counting...';g('o10btn').disabled=true;
+  r10Int=setInterval(()=>{c--;g('o10num').textContent=c;
+    if(c<=0){clearInterval(r10Int);r10Running=false;
+      g('o10btn').textContent='Done ✓';addXP(10,'10-Second Rule ✓','Conscious decision made.');
+      setTimeout(closeRule10,1200);
+    }
+  },1000);
+}
+
+/* ══ URGE SURFING ══ */
+const UMSGS=['Notice the sensation. Do not label it.','Where in your body do you feel it?','Breathe in — four counts slowly.','Hold — four counts.','Out — six counts, fully empty.','The urge is peaking. You are the observer.','You are past the peak. Watch it subside.','Name the trigger. What brought this?','You chose observation over reaction.','The wave has passed. You held the line. 🌿'];
+let urgeInt=null,urgeSec=0;
+function urgeStart(){
+  if(S.urgeS)return;S.urgeS=true;urgeSec=0;g('urgeBtn').textContent='Surfing...';g('urgeBtn').disabled=true;
+  urgeInt=setInterval(()=>{urgeSec++;
+    g('urgeFill').style.width=(urgeSec/90*100)+'%';
+    g('urgeTime').textContent=`${urgeSec} / 90 sec`;
+    g('urgeMsg').textContent=UMSGS[Math.min(9,Math.floor(urgeSec/90*10))];
+    if(urgeSec>=90){clearInterval(urgeInt);S.urgeS=false;S.urgeN++;
+      g('urgeBtn').textContent='🌊 Start Again';g('urgeBtn').disabled=false;
+      addXP(35,'Urge Surfed 🌊','90 seconds. You chose.');chkBadges();
+    }
+  },1000);
+}
+function urgeReset(){clearInterval(urgeInt);S.urgeS=false;urgeSec=0;g('urgeBtn').textContent='🌊 Start Surfing';g('urgeBtn').disabled=false;g('urgeFill').style.width='0%';g('urgeTime').textContent='0 / 90 sec';g('urgeMsg').textContent='Press start when you feel the urge.';}
+function logTrig(){const t=g('trigSel').value;S.trigs.push({t,time:new Date().toLocaleTimeString()});const el=g('trigLog');if(!el)return;el.textContent=S.trigs.slice(-5).map(x=>`${x.time} → ${x.t}`).join('\n');addXP(5,'Trigger Logged',t);}
+
+/* ══ DOPAMINE BUDGET ══ */
+function renderTokens(){
+  const gd=g('tokenGrid');if(!gd)return;gd.innerHTML='';
+  for(let i=0;i<20;i++){const t=document.createElement('div');t.className='token'+(i<S.tSpent?' spent':i>=S.tokens?' locked':'');if(i<S.tokens&&i>=S.tSpent)t.onclick=()=>spendToken();gd.appendChild(t);}
+  g('tokLeft')&&(g('tokLeft').textContent=S.tokens-S.tSpent);
+  g('tokSpent')&&(g('tokSpent').textContent=S.tSpent);
+  g('kaizenV')&&(g('kaizenV').textContent=Math.max(0,Math.round((3-(S.tSpent*.5))/3*100))+'%');
+}
+function spendToken(){if(S.tSpent>=S.tokens){toast('Budget Empty','All tokens spent today.');return;}S.tSpent++;renderTokens();}
+function renderBudgetCats(){
+  const c=g('budgetCats');if(!c)return;c.innerHTML='';
+  [['social','Social Media',4],['news','News',2],['video','Video',4],['games','Games',2],['browse','Browsing',4],['other','Other',4]].forEach(([k,l,def])=>{
+    const d=document.createElement('div');d.className='budget-row';
+    d.innerHTML=`<div class="budget-row-head"><span class="budget-row-name">${l}</span><span class="budget-row-count"><span id="bc-${k}">${S.budg[k]||def}</span> tokens</span></div><input type="range" min="0" max="10" value="${S.budg[k]||def}" oninput="S.budg['${k}']=parseInt(this.value);document.getElementById('bc-${k}').textContent=this.value">`;
+    c.appendChild(d);
+  });
+}
+function saveBudget(){const total=Object.values(S.budg).reduce((a,b)=>a+b,0);S.tokens=Math.min(20,total);renderTokens();addXP(10,'Budget Set','Attention allocated.');}
+
+/* ══ REPLACEMENT MENU ══ */
+const RM=[
+  {time:'1m',cat:'move',t:'Cold water on face',d:'Activates the dive reflex. Resets your autonomic nervous system instantly.'},
+  {time:'1m',cat:'light',t:'Step outside for sunlight',d:'60 seconds of direct light. Cortisol, alertness, mood — without a screen.'},
+  {time:'1m',cat:'move',t:'Three deep box breaths',d:'4-4-4-4 breathing. CO2 balance restored. Nervous system reset.'},
+  {time:'5m',cat:'move',t:'Walk outside',d:'Movement + natural light recalibrate your dopamine baseline in 5 minutes.'},
+  {time:'5m',cat:'cold',t:'20-second cold shower',d:'Norepinephrine spikes dramatically. The craving becomes irrelevant.'},
+  {time:'5m',cat:'social',t:'Call someone you love',d:'Voice activates social circuitry no app can replicate. Try it now.'},
+  {time:'5m',cat:'light',t:'Light + movement walk',d:'The trifecta of neurochemical reset: light, movement, fresh air.'},
+  {time:'5m',cat:'move',t:'Write one sentence',d:'Any sentence. The generative act — not consumption. Neurons that fire together wire together.'},
+  {time:'20m',cat:'move',t:'Full movement session',d:'BDNF — the molecule of focus and sustained mood — floods the brain after 20 minutes.'},
+  {time:'20m',cat:'move',t:'Read 10 pages',d:'Physical book only. The sustained attention required is the opposite of scrolling.'},
+  {time:'20m',cat:'cold',t:'Sauna or cold plunge',d:'Hormetic stress. Your nervous system adapts to difficulty. So does your discipline.'},
+  {time:'1h',cat:'move',t:'Deep work block',d:'One uninterrupted hour on your most important work. This is what the time was always for.'},
+  {time:'1h',cat:'social',t:'In-person time',d:'Presence is what social media simulates and fails to deliver. Meet someone.'},
+  {time:'1h',cat:'light',t:'Time in nature — no audio',d:'Unstructured outdoors time. Your default mode network needs this to consolidate.'},
+];
+function renderRM(){
+  const c=g('rmGrid');if(!c)return;c.innerHTML='';
+  const f=S.rmF;
+  RM.filter(i=>f==='all'||i.time===f||i.cat===f).forEach(item=>{
+    const d=document.createElement('div');d.className='rm-card';
+    d.innerHTML=`<div class="rm-time">${item.time.toUpperCase()}</div><h4>${item.t}</h4><p>${item.d}</p>`;
+    d.onclick=()=>{addXP(20,'Alternative Chosen 🌿',item.t);toast('Begin Now',item.t);};
+    c.appendChild(d);
+  });
+}
+function filterRM(f,el){S.rmF=f;document.querySelectorAll('.rm-filter').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderRM();}
+
+/* ══ WOOP ══ */
+function saveWoop(){
+  const w=g('wW').value,o=g('wO').value,ob=g('wOb').value,pl=g('wP').value,dl=g('wD').value,acc=g('wAcc').value;
+  if(!w){toast('Required','Please fill in your Wish.');return;}
+  S.woop={w,o,ob,pl,dl,acc};
+  const out=g('woopOut');out.style.display='block';
+  out.innerHTML=`<div style="background:var(--gold-xl);border-radius:var(--r-sm);padding:1.25rem;border:1.5px solid rgba(184,134,11,.2)">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--gold);margin-bottom:.65rem">YOUR WOOP GOAL · DEADLINE: ${dl||'Not set'}</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.12rem;font-weight:600;color:var(--ink);margin-bottom:.5rem">${w}</div>
+    <div style="font-size:.86rem;font-weight:300;color:var(--ink-3);margin-bottom:.4rem"><strong>If</strong> ${ob||'I feel the urge'}, <strong>then I will</strong> ${pl||'open the Replacement Menu immediately'}.</div>
+    ${acc?`<div style="font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--ink-4);margin-top:.5rem">Accountability partner: ${acc}</div>`:''}
+  </div>`;
+  addXP(40,'WOOP Goal Set 🎯','Harvard method activated.');chkBadges();
+}
+
+/* ══ BUSHIDO ══ */
+const BUSHIDO=[
+  {jp:'Shugyo',en:'Austere Training',d:'Embrace difficulty as the teacher. Train when conditions are wrong. The discomfort is the point.'},
+  {jp:'Kime',en:'Decisive Focus',d:'Eliminate preference. One thing fully. Complete commitment — no half-measures.'},
+  {jp:'Sheishin',en:'Mental Fortitude',d:'Reliability, emotional regulation, responsibility without performance. Inner stability regardless of circumstance.'},
+  {jp:'Fudoshin',en:'Immovable Mind',d:'Detach from outcome. Avoid over-refinement. Don\'t repeat comfortable methods.'},
+  {jp:'Mushin',en:'No-Mind State',d:'Flow without self-consciousness. Action without analytical interference. Pure presence.'},
+  {jp:'Zanshin',en:'Continued Awareness',d:'Total alertness after the action. Remain fully present. The task is not done until integrated.'},
+  {jp:'Ganbaru',en:'Perseverance',d:'Stay consistent, especially in hard times. Kaizen — improve 5% every day without exception.'},
+];
+function renderBushido(){
+  const gd=g('bushidoGrid');if(!gd)return;gd.innerHTML='';
+  BUSHIDO.forEach((b,i)=>{
+    const d=document.createElement('div');d.className='bushido-cell'+(b.active?' active':'');
+    d.innerHTML=`<div class="bushido-jp">${b.jp}</div><div class="bushido-en">${b.en}</div><div class="bushido-desc">${b.d}</div>`;
+    d.onclick=()=>{b.active=!b.active;if(b.active)addXP(20,b.en,b.jp+' activated');renderBushido();};
+    gd.appendChild(d);
+  });
+}
+function logBushido(type){S.bLog.push({type,time:new Date().toLocaleTimeString()});const el=g('bushidoLog');if(el)el.textContent=S.bLog.slice(-5).map(x=>`${x.time} — ${x.type}`).join('\n');addXP(25,'Bushido Practice ⚔️',type);}
+
+/* ══ CHECK-IN ══ */
+function submitCI(){
+  const sliders=document.querySelectorAll('#p-checkin input[type=range]'),keys=['energy','focus','urge','sleep','screen'],entry={};
+  sliders.forEach((r,i)=>{if(keys[i])entry[keys[i]]=parseFloat(r.value);});
+  entry.note=g('cnote').value;entry.date=Date.now();
+  if(entry.screen!==undefined)S.scr[Math.min(29,S.ci.length)]=entry.screen;
+  S.ci.push(entry);S.ciCount++;g('cnote').value='';g('cib').style.display='none';
+  addXP(25,'Check-In ✓','Behavioral data logged.');drawCIChart();renderDebrief();renderMirror();
+}
+function drawCIChart(){
+  const cv=g('ciChart');if(!cv)return;
+  const W=cv.width=cv.offsetWidth,H=cv.height=140,ctx=cv.getContext('2d');ctx.clearRect(0,0,W,H);
+  const data=S.ci.slice(-7);if(data.length<2){ctx.fillStyle='rgba(184,134,11,.35)';ctx.font='11px JetBrains Mono';ctx.fillText('Log 2+ check-ins to see trend',14,70);return;}
+  const pad={t:8,b:16,l:8,r:8},gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
+  [{k:'energy',c:'rgba(184,134,11,.9)'},{k:'focus',c:'rgba(90,122,106,.9)'}].forEach(m=>{
+    const vals=data.map(d=>d[m.k]||5);
+    ctx.strokeStyle=m.c;ctx.lineWidth=2;ctx.lineJoin='round';ctx.beginPath();
+    vals.forEach((v,i)=>{const x=pad.l+(i/(data.length-1))*gW,y=pad.t+gH*(1-v/10);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();
+    const gf=ctx.createLinearGradient(0,pad.t,0,pad.t+gH);gf.addColorStop(0,m.c.replace('.9','.12'));gf.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=gf;ctx.beginPath();vals.forEach((v,i)=>{const x=pad.l+(i/(data.length-1))*gW,y=pad.t+gH*(1-v/10);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.lineTo(pad.l+gW,pad.t+gH);ctx.lineTo(pad.l,pad.t+gH);ctx.closePath();ctx.fill();
+  });
+}
+function renderDebrief(){
+  const el=g('wdebriefInfo'),wg=g('wdGrid');
+  if(S.ci.length<3){if(el)el.textContent='Log 3+ check-ins to generate your weekly debrief.';return;}
+  const last7=S.ci.slice(-7),avg=k=>last7.reduce((s,d)=>s+(d[k]||5),0)/last7.length;
+  const [aE,aF,aU]=[avg('energy').toFixed(1),avg('focus').toFixed(1),avg('urge').toFixed(1)];
+  if(el)el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;margin-bottom:1rem"><div style="text-align:center;padding:.75rem;background:var(--parchment);border-radius:10px;border:1px solid var(--border)"><div style="font-size:1.4rem;font-weight:700;color:var(--gold);font-family:'Playfair Display',serif">${aE}</div><div style="font-size:.62rem;font-family:'JetBrains Mono',monospace;color:var(--ink-4)">AVG ENERGY</div></div><div style="text-align:center;padding:.75rem;background:var(--parchment);border-radius:10px;border:1px solid var(--border)"><div style="font-size:1.4rem;font-weight:700;color:var(--sage);font-family:'Playfair Display',serif">${aF}</div><div style="font-size:.62rem;font-family:'JetBrains Mono',monospace;color:var(--ink-4)">AVG FOCUS</div></div><div style="text-align:center;padding:.75rem;background:var(--warm-red-xl);border-radius:10px;border:1px solid rgba(192,69,42,.15)"><div style="font-size:1.4rem;font-weight:700;color:var(--warm-red);font-family:'Playfair Display',serif">${aU}</div><div style="font-size:.62rem;font-family:'JetBrains Mono',monospace;color:var(--ink-4)">AVG CRAVING</div></div></div>`;
+  if(wg){wg.innerHTML='';const days=['M','T','W','T','F','S','S'];last7.forEach((d,i)=>{const sc=Math.round(((d.energy||5)+(d.focus||5)+(10-(d.urge||5)))/3),col=sc>=7?'var(--gold)':sc>=5?'var(--sage-l)':'var(--warm-red)';const div=document.createElement('div');div.className='wd-day';div.innerHTML=`<div class="wd-lbl">${days[i]||'?'}</div><div class="wd-bar-wrap"><div class="wd-bar" style="height:${sc*5}px;background:${col}"></div></div><div class="wd-score">${sc}</div>`;wg.appendChild(div);});}
+}
+
+/* ══ ROUTINE ══ */
+function addM(t,m){const[h,min]=t.split(':').map(Number),tot=h*60+min+m,hh=Math.floor(((tot%1440)+1440)%1440/60),mm=((tot%60)+60)%60;return`${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;}
+function buildRoutine(){
+  const wake=g('rw').value,sleep=g('rsleep').value,work=parseInt(g('rwh').value)||8,rep=g('rrep').value,int=g('rint').value,morn=parseInt(g('rmorn').value)||60,hard=int==='hard',soft=int==='soft';
+  const steps=[
+    {t:wake,n:'Wake — physical alarm, no phone',d:'Start without noise. Phone stays face-down. Start the day with one win.'},
+    {t:addM(wake,5),n:'Water, window, light',d:'Hydrate immediately. Open the window. Natural light syncs cortisol — no screen needed.'},
+    {t:addM(wake,15),n:`Hardest task first — ${rep}`,d:`${hard?morn+' min, no exceptions.':morn+' min of '+rep+'. '} Treat this like a non-negotiable meeting: plan, prepare, start on time.`},
+    {t:addM(wake,morn+10),n:'First phone window (10 min max)',d:'Messages and calendar only. Zero social media. The 10-second rule applies to every pickup.'},
+    {t:addM(wake,morn+25),n:'Deep work Block I',d:`${Math.min(work,2.5)}h of pure focus. Phone in another room. Plan every task into clear blocks.`},
+    {t:'12:30',n:'Lunch — no phone, cook one good meal',d:'Care about your nutrition. Micro-dopamine fast: no phone for 10 minutes after eating.'},
+    {t:'13:15',n:'Second phone window (15 min)',d:'Batch all replies. Then close. Second scroll window per today\'s budget.'},
+    {t:'14:00',n:'Deep work Block II',d:'Honor it identically to Block I. Write down 3 tasks for tomorrow in the last 5 minutes.'},
+    {t:'18:00',n:'Evening phone window (15 min)',d:'Last check of the day. After this: calls only. Leave your phone and don\'t check it too often.'},
+    {t:addM(sleep,-(hard?90:60)),n:'Digital dusk — plan tomorrow tonight',d:`${hard?'90':'60'} min before sleep: all screens off. Check tomorrow's tasks, meals, outfit. Dopamine detox begins.`},
+    {t:addM(sleep,-15),n:'Visualization practice',d:'Imagine yourself doing one thing perfectly tomorrow. Cognitive reappraisal: flip one negative thought into positive.'},
+    {t:sleep,n:'Sleep — phone charges outside the room',d:'Physical alarm wakes you. Create an unreachable hour every night.'},
+  ];
+  const stEl=g('routineSteps');if(!stEl)return;stEl.innerHTML='';
+  steps.forEach((s,i)=>{const d=document.createElement('div');d.className='routine-step';d.innerHTML=`<div class="rs-num">${String(i+1).padStart(2,'0')}</div><div><div class="rs-time">${s.t}</div><div class="rs-title">${s.n}</div><div class="rs-desc">${s.d}</div></div>`;stEl.appendChild(d);});
+  g('routineTitle').textContent=`${hard?'Hardcore':soft?'Gentle':'Balanced'} Daily Protocol`;
+  g('routineOut').style.display='block';g('routineOut').scrollIntoView({behavior:'smooth'});
+  S.rB=true;addXP(30,'Protocol Generated','Your daily architecture is set.');chkBadges();
+}
+
+/* ══ 30-DAY CHALLENGE ══ */
+const CHAL=[
+  {d:1,c:'Awareness',t:'Phone Audit',desc:'Count every single pickup today. No changes yet. Observation before action.'},
+  {d:2,c:'Awareness',t:'Trigger Mapping',desc:'Each time you reach for the phone: pause. Say the emotion aloud. Write it down.'},
+  {d:3,c:'Friction',t:'Grayscale Mode',desc:'Turn your phone grey to avoid the dopamine trap. Enable for the full day.'},
+  {d:4,c:'Friction',t:'Homescreen Purge',desc:'Delete every social app from homescreen. Folder access requires deliberate intent.'},
+  {d:5,c:'Awareness',t:'Before & After Log',desc:'Before any app: write why. After: write how you feel. The gap is the insight.'},
+  {d:6,c:'Time',t:'Phone-Free Morning',desc:'60 min after waking — no phone. Start the day with one win. Have a clear routine.'},
+  {d:7,c:'Recovery',t:'One Hour Outside',desc:'One hour outside without phone. Barefoot if possible. Hadouka-ashi no Shugyo.'},
+  {d:8,c:'Friction',t:'Log Out of Everything',desc:'Log out of all social apps manually. The re-login friction is the intervention.'},
+  {d:9,c:'Time',t:'First Focus Session',desc:'One 25-minute phone-free block. Treat it like a meeting — plan, prepare, start on time.'},
+  {d:10,c:'Friction',t:'Notification Purge',desc:'Turn off every notification except calls. Move your phone, replace the hit.'},
+  {d:11,c:'Time',t:'2-Minute Rule',desc:'Less than 2 minutes — do it now. Stop deferring small actions to phone as a crutch.'},
+  {d:12,c:'Time',t:'Meal Protocol',desc:'Three meals — zero phone. Cook one good meal. Care about your nutrition today.'},
+  {d:13,c:'Recovery',t:'Read 20 Pages',desc:'Physical book. The sustained attention this demands is the opposite of scrolling.'},
+  {d:14,c:'Time',t:'Phone-Free Half Day',desc:'No phone before 1pm. Set your 30-day comfort detox mindset. Document your state.'},
+  {d:15,c:'Identity',t:'Identity Declaration',desc:'"I am someone who..." — complete without mentioning phone, social, or screen.'},
+  {d:16,c:'Recovery',t:'Voice Call Instead of Text',desc:'One conversation you\'d normally have via text — make it a real call today.'},
+  {d:17,c:'Friction',t:'Physical Alarm Installed',desc:'Real alarm clock. Phone charges in another room. This is the highest-leverage change.'},
+  {d:18,c:'Time',t:'Two Focus Sessions',desc:'Two 25-minute sessions. Between them: no phone. Track quality in both.'},
+  {d:19,c:'Awareness',t:'Dopamine Diary',desc:'Track every pleasure: phone vs. real world. Integrate new alternative joys daily.'},
+  {d:20,c:'Recovery',t:'Movement Without Audio',desc:'30 min of movement — no earphones, no phone. Use box breathing in transitions.'},
+  {d:21,c:'Identity',t:'Design Your Ideal Day',desc:'Write your ideal day in full detail. Where does the phone appear? Tool or companion?'},
+  {d:22,c:'Mastery',t:'Teach the Mechanism',desc:'Explain phone addiction to someone today. Teaching requires clarity.'},
+  {d:23,c:'Time',t:'Three-Hour Block',desc:'One 3-hour uninterrupted block. Hour 1: friction. Hour 2: focus. Hour 3: flow.'},
+  {d:24,c:'Mastery',t:'Write Your Phone Constitution',desc:'Your personal rules. Use the 1-2-3 Rule: count to 3 then move directly.'},
+  {d:25,c:'Recovery',t:'Digital Sabbath Evening',desc:'From 6pm to sleep: zero screens. Add a dopamine detox before bed. Observe what emerges.'},
+  {d:26,c:'Mastery',t:'Practice the Deliberate Exit',desc:'Open social for 2 conscious minutes. Then close deliberately. Practice the exit.'},
+  {d:27,c:'Identity',t:'Month Reflection',desc:'What is different now? What patterns have shifted? Integrate new realities into Alltag.'},
+  {d:28,c:'Mastery',t:'Phone-Free Social Event',desc:'Gather with people with a no-phones agreement. Real social as happiness source.'},
+  {d:29,c:'Recovery',t:'Design Next 30 Days',desc:'Write your phone protocol for the next month. Use Micro-Dopamin-Fasten principles.'},
+  {d:30,c:'Mastery',t:'Absolute Excellence Commitment',desc:'Name your system. Commit. Langfristige Determination und Ambition. Measure Fortschritt.'},
+];
+const PHASES=[
+  {r:[1,7],n:'Phase I — Awareness',d:'Observation only. Make the invisible visible. You cannot change what you cannot clearly see.'},
+  {r:[8,14],n:'Phase II — Friction Engineering',d:'Structural interventions. Redesign your environment so the healthy default requires zero willpower.'},
+  {r:[15,21],n:'Phase III — Identity Rewiring',d:'Driven by who you are becoming — not what you are stopping. Neural conditioning at depth.'},
+  {r:[22,30],n:'Phase IV — Absolute Mastery',d:'Consolidation. Design your permanent architecture. Ganbaru — stay consistent in hard times.'},
+];
+function renderChal(){
+  const c=g('chList');if(!c)return;c.innerHTML='';
+  CHAL.forEach(ch=>{
+    const done=S.done.has(ch.d),today=ch.d===S.curDay;
+    const d=document.createElement('div');d.className='chal-day'+(done?' done':'')+(today?' today':'');
+    d.innerHTML=`<div class="chal-num">${String(ch.d).padStart(2,'0')}</div><div><div class="chal-cat">${ch.c}</div><div class="chal-title">${ch.t}</div><div class="chal-desc">${ch.desc}</div></div><div class="chal-check">${done?'✓':''}</div>`;
+    d.onclick=()=>toggleChal(ch.d);c.appendChild(d);
+  });
+  const done=S.done.size;
+  g('chComp')&&(g('chComp').textContent=done);g('chBar')&&(g('chBar').style.width=(done/30*100)+'%');
+  const ph=PHASES.find(p=>S.curDay>=p.r[0]&&S.curDay<=p.r[1])||PHASES[3];
+  g('chPhase')&&(g('chPhase').textContent=ph.n);g('chPhaseD')&&(g('chPhaseD').textContent=ph.d);
+  const today=CHAL.find(c=>c.d===S.curDay);if(today){g('hcd-t')&&(g('hcd-t').textContent=today.t);g('hcd-d')&&(g('hcd-d').textContent=today.desc);}
+}
+function toggleChal(d){
+  if(S.done.has(d))S.done.delete(d);
+  else{S.done.add(d);addXP(40,'Challenge Day ✓',`Day ${d} — ${CHAL[d-1].t}`);if(d===S.curDay&&d<30)S.curDay=d+1;}
+  renderChal();
+}
+
+/* ══ INTERACTIVE PLAYBOOK ══ */
+const PB=[
+  {id:1,title:'You Were Engineered to Scroll.',body:['The most important reframe before anything else: your phone addiction is not a character flaw. It is the precise, intended outcome of billions of dollars invested in behavioral engineering. Aza Raskin — inventor of infinite scroll — publicly stated he regrets what he created. He estimated it costs humanity 200,000 hours of attention every minute.','Every pull-to-refresh performs the same action as a slot machine lever pull. Variable reward schedules — unpredictable rewards — create stronger behavioral reinforcement than any fixed schedule. B.F. Skinner proved this in the 1950s. Silicon Valley weaponized it in the 2010s.','Dopamine does not signal pleasure. It signals the anticipation of possible reward. The scroll is not pleasurable — the maybe of the next post is. This explains why you scroll for an hour feeling vaguely dissatisfied while being completely unable to stop.'],pull:'"Your attention is not a psychological problem. It is an economic product that others are selling."',strategy:{t:'Internalize This Before Anything Else',items:['You are not weak. You face adversarial design built by world-class engineers.','Guilt and shame are not only useless — they are actively counterproductive.','Willpower is a depletable resource. Systems are not. Build systems.','The goal is not elimination. It is deliberate, chosen, conscious use.']},quiz:{q:'What type of reward schedule makes social media so compulsive?',opts:['Fixed reward — always something interesting','Variable reward — unpredictable, like a slot machine','Social reward — validation from others','Visual reward — colorful, stimulating design'],ans:1,exp:'Variable reward schedules create the strongest behavioral reinforcement. This is identical to slot machine psychology — the unpredictability of the reward is precisely what makes it so compelling.'},insight:'What changes for you knowing this was deliberately engineered?'},
+  {id:2,title:'Friction Engineering — Your Most Powerful Tool.',body:['Behavioral science has a concept most self-improvement advice completely ignores: the path of least resistance is the path of default behavior. Whatever action requires the least effort is what people do automatically. To change defaults, you increase friction for the undesired behavior, decrease friction for the desired, or both.','The goal is transforming unconscious behavior into conscious choice. If you must actively decide to open Instagram rather than doing it reflexively, you have already won half the battle. Your prefrontal cortex needs 0.5 to 2 seconds to engage. Friction creates that gap.','Physical distance is the single highest-leverage intervention. A phone in another room is accessed 60% less than a phone on the desk — not through willpower, but because the seconds required to retrieve it allow rational thought to participate.'],pull:'"The goal is not to make Instagram impossible. It is to make it non-reflexive."',strategy:{t:'Friction Interventions — Ranked by Impact',items:['Physical distance: phone in another room. Highest impact, zero ongoing effort.','Grayscale mode: removes color-based dopamine triggering. Immediate.','Log out after every use: re-login friction breaks most impulse checks.','Homescreen purge: apps in a folder. Access requires intent.','Notification purge: you decide when to check — not the app.']},quiz:{q:'Why does keeping your phone in another room reduce usage so dramatically?',opts:['People forget about their phones when distracted','The retrieval time gives the prefrontal cortex time to engage','People feel guilty walking to get it','Room separation is culturally normative'],ans:1,exp:'The seconds required to physically retrieve the phone allow the prefrontal cortex to engage before the limbic system acts on impulse. This is why physical distance is the highest-leverage, lowest-effort intervention available.'},insight:'Which single friction intervention would have the largest impact in your specific situation?'},
+  {id:3,title:'The Morning Window — 60 Minutes That Shape Your Day.',body:['In the first 60 minutes after waking, your brain occupies a neurological state unlike any other point in the day. Cortisol rises — not as a stress signal, but as the wake-inducing hormone that calibrates your alertness architecture. The brain transitions from theta to alpha and beta states: a window of high receptivity.','What you input in this window sets the emotional and attentional baseline for the following 14 hours. Checking your phone first means activating your stress response before your nervous system is fully online, importing others\' agendas before establishing your own, and loading your working memory with social data that competes with your focus for hours.','People who protect their morning from screens report higher daily focus, lower subjective stress, and greater sense of agency throughout the day. This is causal — rooted in cortisol timing and attentional priming.'],pull:'"Your first 60 minutes are a neurological investment with a 14-hour return."',strategy:{t:'Morning Protocol — Non-Negotiable Version',items:['0–5 min: Water, window, no screen. Let cortisol rise naturally.','5–25 min: Physical movement — even 10 deliberate minutes.','25–45 min: Your chosen replacement activity. Analog.','45–60 min: Coffee or tea, intentionally. Not while checking anything.','Minute 60+: Phone, if needed — with intention, never as reflex.']},quiz:{q:'Why does the first 60 minutes after waking have such outsized influence on the whole day?',opts:['You are most energetic in the morning','The cortisol rise and theta-to-beta wave transition create a window of heightened receptivity','Morning habits are easiest to form neurologically','You have fewer distractions early'],ans:1,exp:'The morning cortisol rise combined with the theta-to-beta brain wave transition creates a neurological window where inputs — including phone stimulation — have unusually large influence on your emotional and cognitive baseline for the rest of the day.'},insight:'What would you do with 60 phone-free minutes every single morning?'},
+  {id:4,title:'Time Batching — How to Own Your Notifications.',body:['A UC Irvine study measured the cost of a single interruption. Average time to return to full focus: 23 minutes and 15 seconds — not from when you put the phone down, but from the moment of interruption. Ten notification-driven interruptions in a workday can cost over four hours of deep cognitive work.','The solution is architectural, not motivational. You do not need more discipline to check your phone less. You need to decide once — definitively — when you check it, and make that binding. Time batching: consolidate all communication into defined windows. Become genuinely unavailable outside them.','The common resistance: "What if someone needs me immediately?" Data consistently shows that the vast majority of messages — even those labeled urgent — do not require response within hours, let alone minutes. The urgency is almost always perceived, not real.'],pull:'"Reactive availability is the most expensive way to spend the most finite resource you have."',strategy:{t:'Batching — Start Tomorrow Morning',items:['Two to three windows maximum: 9am, 1pm, 6pm.','Outside windows: Do Not Disturb. Calls only. No exceptions.','Set an autoresponder if needed — most relationships adapt.','Communicate your protocol once to the people who matter.','Begin with two days per week, then expand gradually.']},quiz:{q:'According to UC Irvine research, how long does full recovery after one interruption take?',opts:['About 3 minutes','About 9 minutes','About 23 minutes','About 45 minutes'],ans:2,exp:'The UC Irvine study found average recovery time from a single interruption to full cognitive focus is 23 minutes and 15 seconds — making each notification far more costly than it appears from the surface.'},insight:'What would you build with 4 extra hours of uninterrupted work every single day?'},
+  {id:5,title:'The Reset — What to Do When You Fail.',body:['You will fail. This is accurate modeling, not pessimism. Research on behavioral change is unequivocal: relapse is part of the process, not an interruption to it. What determines long-term outcome is not whether you fall back — it is how quickly you exit when you do.','The most destructive cognitive pattern in behavioral recovery is the abstinence violation effect: interpreting one failure as proof that the entire effort has collapsed. "I already ruined today, so I might as well..." This is the mechanism that converts a 5-minute slip into a 5-hour binge. Recognizing this pattern by name is often sufficient to break it.','Research consistently finds that the single strongest predictor of long-term success is not the absence of relapses — it is the capacity to resume immediately after one. Never miss twice. Two consecutive misses is the threshold where a new default behavior begins to solidify.'],pull:'"A relapse is not a failure. It is data about your triggers and a test of your recovery speed."',strategy:{t:'The Three-Step Reset Protocol',items:['Step 1 — Observe: "I just scrolled for an hour." State it simply. No judgment.','Step 2 — Diagnose: What triggered this? Boredom, anxiety, avoidance, transition?','Step 3 — Act within 5 minutes: Open the Focus Timer. Not tomorrow. Directly now.']},quiz:{q:'What is the "abstinence violation effect" in behavioral psychology?',opts:['Physical withdrawal symptoms when stopping phone use','The tendency to interpret one lapse as total failure, leading to further failure','The emotional relief felt after a successful phone-free day','The gradual reduction in cravings over time'],ans:1,exp:'The abstinence violation effect is the cognitive pattern where a single lapse is interpreted as proof of complete failure — triggering "I might as well continue" thinking that amplifies the relapse dramatically.'},insight:'What would a 5-minute reset look like for you in your most vulnerable moment?'},
+];
+let activePB=1;
+function renderPBTabs(){
+  const c=g('pbTabs');if(!c)return;c.innerHTML='';
+  PB.forEach(ch=>{const b=document.createElement('button');b.className='pb-tab'+(ch.id===activePB?' on':'')+(S.pbDone.has(ch.id)?' done':'');b.textContent=`Chapter ${ch.id}${S.pbDone.has(ch.id)?' ✓':''}`;b.onclick=()=>{activePB=ch.id;renderPB();};c.appendChild(b);});
+}
+function renderPB(){
+  renderPBTabs();const c=g('pbContent');if(!c)return;c.innerHTML='';
+  const ch=PB.find(p=>p.id===activePB);if(!ch)return;
+  const qid=`q-${ch.id}`,qDone=S.pbQuiz.has(ch.id);
+  let html=`<div class="pb-chapter"><div class="pb-ch-num">Chapter 0${ch.id}</div><div class="pb-ch-title">${ch.title}</div>
+    ${ch.body.map(p=>`<div class="pb-body">${p}</div>`).join('')}
+    <div class="pb-pull">${ch.pull}</div>
+    <div class="pb-strat"><h4>${ch.strategy.t}</h4><ul>${ch.strategy.items.map(i=>`<li>${i}</li>`).join('')}</ul></div>
+    <div style="display:flex;gap:.65rem;margin-top:1.5rem;flex-wrap:wrap">${activePB<5?`<button class="btn primary sm" onclick="activePB=${activePB+1};renderPB()">Next Chapter →</button>`:'<button class="btn sm" onclick="sw(\'progress\')">View Achievements →</button>'}</div>
+  </div>`;
+  html+=`<div class="quiz-block"><div class="quiz-label">📝 CHAPTER QUIZ — PROVE YOUR UNDERSTANDING</div><div class="quiz-question">${ch.quiz.q}</div><div class="quiz-opts" id="${qid}">${ch.quiz.opts.map((o,i)=>`<button class="quiz-opt" onclick="answerQuiz(${ch.id},${i},${ch.quiz.ans},'${qid}')">${o}</button>`).join('')}</div><div class="quiz-feedback" id="qf-${ch.id}">${qDone?'✓ Correct — chapter complete.':''}</div></div>`;
+  html+=`<div class="insight-block"><div class="insight-label">✏️ PERSONAL INSIGHT — ${ch.insight}</div><textarea id="ins-${ch.id}" rows="3" placeholder="Write your honest insight here...">${S.pbInsights[ch.id]||''}</textarea><button class="btn primary sm" onclick="saveInsight(${ch.id})">Save Insight</button>${Object.entries(S.pbInsights).filter(([k,v])=>parseInt(k)!==ch.id&&v).map(([k,v])=>`<div class="insight-entry"><div class="insight-ch">Chapter ${k}</div>${v}</div>`).join('')}</div>`;
+  c.innerHTML=html;
+  if(qDone){document.querySelectorAll(`#${qid} .quiz-opt`).forEach((b,i)=>{b.disabled=true;if(i===ch.quiz.ans)b.classList.add('correct');});}
+}
+function answerQuiz(chId,chosen,correct,qid){
+  document.querySelectorAll(`#${qid} .quiz-opt`).forEach(b=>b.disabled=true);
+  document.querySelectorAll(`#${qid} .quiz-opt`)[chosen].classList.add(chosen===correct?'correct':'wrong');
+  if(chosen!==correct)document.querySelectorAll(`#${qid} .quiz-opt`)[correct].classList.add('correct');
+  const fb=g(`qf-${chId}`);if(fb)fb.textContent=(chosen===correct?'✓ Correct — ':' Not quite — ')+PB.find(p=>p.id===chId).quiz.exp;
+  if(chosen===correct&&!S.pbQuiz.has(chId)){S.pbQuiz.add(chId);S.pbDone.add(chId);addXP(40,`Chapter ${chId} Complete ✓`,'Quiz passed.');chkBadges();renderPBTabs();}
+}
+function saveInsight(id){const t=g('ins-'+id);if(!t||!t.value.trim())return;S.pbInsights[id]=t.value.trim();addXP(15,'Insight Saved ✏️','Your understanding recorded.');toast('Saved','Insight logged to your journal.');}
+
+/* ══ MIND MIRROR ══ */
+function renderMirror(){
+  const c=g('mirrorOut');if(!c)return;
+  if(S.ci.length<3){c.innerHTML='<div class="mirror-empty">Your behavioral pattern needs at least 3 check-ins to emerge.<br><br>Each daily check-in adds precision to your mirror.</div>';return;}
+  const r=S.ci.slice(-7),avg=k=>r.reduce((s,d)=>s+(d[k]||5),0)/r.length,[aU,aE,aF]=[avg('urge'),avg('energy'),avg('focus')];
+  const insights=[
+    {t:'Pattern Analysis',txt:aU>6?'Craving intensity is elevated. High-risk windows likely in post-work transitions and late afternoon. Pre-load the Replacement Menu before 3pm.':aU>4?'Moderate craving pattern. Watch for task-transition moments and meal boredom — your most frequent trigger windows.':'Low craving intensity. Your architecture is working. Maintain the current protocol precisely.'},
+    {t:'Energy & Focus Model',txt:aE<5?'Energy consistently below baseline. Likely causes: insufficient sleep, poor nutrition timing, or sedentary periods triggering compensation scrolling.':aF<5?'Focus quality lags behind energy — attentional fragmentation from small phone checks between tasks.':'Strong energy and focus. Your phone-free blocks are showing measurable cognitive dividends.'},
+    {t:'Neural Conditioning Recommendation',txt:aU>6?'Install your anchor gesture immediately. Use it before every focus block to neurochemically prime your peak state.':aF<5?'Schedule your highest-stakes work in the 90-minute window immediately after your morning protocol.':'Your pattern shows developing mastery. Increase session length by 10 minutes this week — Kaizen +10%.'},
+    {t:'Recommended Action',txt:aU>6?'Open Urge Surfing Room now. High-risk window predicted in the next 2 hours based on your pattern.':aE<5?'Replacement Menu — Movement category. Your energy needs a physical intervention before the next focus block.':'Add the Bushido practice of Shugyo today. Your nervous system is ready for the upgrade.'},
+  ];
+  c.innerHTML=insights.map(i=>`<div class="mirror-card"><div class="mirror-type">${i.t}</div><div class="mirror-text">${i.txt}</div></div>`).join('');
+  c.innerHTML+=`<div style="margin-top:.75rem"><button class="btn primary sm" onclick="sw('checkin')">Add Today's Data →</button></div>`;
+}
+
+/* ══ ANCHOR ══ */
+function saveAnchor(){
+  const g_=g,gs=g_('anchorG').value,st=g_('anchorS').value,pw=g_('anchorW').value;
+  if(!st){toast('Required','Describe your peak state.');return;}
+  S.anchor={gs,st,pw};const out=g_('anchorOut');out.style.display='block';
+  out.textContent=`Anchor: "${gs}" paired with "${st}"${pw?' — Power words: '+pw:''}. Use in 5 consecutive peak moments to install the neural connection.`;
+  addXP(30,'Anchor Installed ⚡','Neurochemical conditioning active.');
+}
+
+/* ══ CHARTS ══ */
+function drawProgChart(){
+  const cv=g('progChart');if(!cv)return;
+  const W=cv.width=cv.offsetWidth,H=cv.height=140,ctx=cv.getContext('2d');ctx.clearRect(0,0,W,H);
+  const data=S.scr.filter(v=>v!==null);if(data.length<2){ctx.fillStyle='rgba(184,134,11,.35)';ctx.font='11px JetBrains Mono';ctx.fillText('Log screen time in Check-In to see chart',14,70);return;}
+  const max=Math.max(...data,4),pad={t:8,b:16,l:24,r:8},gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
+  [0,2,4].forEach(v=>{if(v>max)return;const y=pad.t+gH*(1-v/max);ctx.strokeStyle='rgba(184,134,11,.1)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+gW,y);ctx.stroke();ctx.fillStyle='rgba(184,134,11,.45)';ctx.font='9px JetBrains Mono';ctx.fillText(v+'h',2,y+3);});
+  const gf=ctx.createLinearGradient(0,pad.t,0,pad.t+gH);gf.addColorStop(0,'rgba(184,134,11,.2)');gf.addColorStop(1,'rgba(184,134,11,0)');
+  ctx.fillStyle=gf;ctx.beginPath();data.forEach((v,i)=>{const x=pad.l+(i/(data.length-1))*gW,y=pad.t+gH*(1-v/max);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.lineTo(pad.l+gW,pad.t+gH);ctx.lineTo(pad.l,pad.t+gH);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='rgba(184,134,11,.85)';ctx.lineWidth=2;ctx.lineJoin='round';ctx.beginPath();
+  data.forEach((v,i)=>{const x=pad.l+(i/(data.length-1))*gW,y=pad.t+gH*(1-v/max);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});ctx.stroke();
+}
+
+/* ══ BADGES ══ */
+const BADGES=[
+  {id:'s1',i:'⏱',n:'First Session',c:()=>S.sessCount>=1},
+  {id:'s5',i:'🔥',n:'5 Sessions',c:()=>S.sessCount>=5},
+  {id:'ci1',i:'📊',n:'First Check-In',c:()=>S.ciCount>=1},
+  {id:'ci7',i:'📈',n:'Week Logged',c:()=>S.ciCount>=7},
+  {id:'hab',i:'✅',n:'Habit Hero',c:()=>S.habits.some(h=>h.d.filter(Boolean).length>=4)},
+  {id:'pb1',i:'📖',n:'First Chapter',c:()=>S.pbDone.size>=1},
+  {id:'pb5',i:'🏅',n:'Playbook Done',c:()=>S.pbDone.size>=5},
+  {id:'ch7',i:'💪',n:'Week 1 Done',c:()=>S.done.size>=7},
+  {id:'ch30',i:'⭐',n:'30-Day Master',c:()=>S.done.size>=30},
+  {id:'urge',i:'🌊',n:'Urge Surfer',c:()=>S.urgeN>=3},
+  {id:'gate',i:'🔑',n:'Gate Keeper',c:()=>S.gEarned>=60},
+  {id:'woop',i:'🎯',n:'WOOP Set',c:()=>!!S.woop},
+  {id:'bushido',i:'⚔️',n:'Bushido Path',c:()=>BUSHIDO.filter(b=>b.active).length>=3},
+  {id:'routine',i:'📅',n:'System Built',c:()=>S.rB},
+  {id:'anchor',i:'⚡',n:'Anchor Set',c:()=>!!S.anchor},
+  {id:'lv3',i:'🌿',n:'Level 3',c:()=>getLv().n>=3},
+  {id:'xp500',i:'💎',n:'500 XP',c:()=>S.xp>=500},
+];
+function chkBadges(){BADGES.forEach(b=>{if(!S.badges.has(b.id)&&b.c()){S.badges.add(b.id);setTimeout(()=>toast('Achievement '+b.i,b.n),700);}});renderBadges();}
+function renderBadges(){
+  const gd=g('badgeGrid');if(!gd)return;gd.innerHTML='';
+  BADGES.forEach(b=>{const d=document.createElement('div');d.className='badge-item'+(S.badges.has(b.id)?' earned':'');d.innerHTML=`<div class="badge-icon">${b.i}</div><div class="badge-name">${b.n}</div>`;gd.appendChild(d);});
+}
+
+/* ══ TOAST ══ */
+let toastT;
+function toast(title,msg){clearTimeout(toastT);g('toast-title').textContent=title;g('toast-msg').textContent=msg;const t=g('toast');t.classList.add('on');toastT=setTimeout(()=>t.classList.remove('on'),3500);}
+
+/* ══ GREETING ══ */
+function getGreeting(){const h=new Date().getHours(),n=S.profile.name?`, ${S.profile.name}`:'';return h<12?`Good morning${n}.`:h<17?`Good afternoon${n}.`:`Good evening${n}.`;}
+function getGreetingSub(){const h=new Date().getHours();return h<12?'Your mind is at its freshest. Use the morning deliberately.':h<17?'The afternoon is your highest-risk window. Stay deliberate.':'Wind down intentionally. Your morning depends on this evening.';}
+
+/* ══ FULL UPDATE ══ */
+function updAll(){
+  updXP();renderHabits();updHH();renderChal();renderGate();renderTokens();renderBudgetCats();renderRM();renderBadges();drawCIChart();renderDebrief();renderMirror();renderBushido();
+  g('htitle')&&(g('htitle').textContent=getGreeting());
+  g('hsubt')&&(g('hsubt').textContent=getGreetingSub());
+  if(S.setup){g('setupCard')&&(g('setupCard').style.display='none');g('profHero')&&(g('profHero').style.display='flex');}
+  else{g('profHero')&&(g('profHero').style.display='none');}
+}
+
+window.addEventListener('load',()=>{updAll();setTimeout(()=>{g('cib').style.display='block';},1200);});
+window.addEventListener('resize',()=>{drawProgChart();drawCIChart();});
+</script>
+</body>
+</html>
